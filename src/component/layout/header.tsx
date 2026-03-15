@@ -23,12 +23,10 @@ export default function Header() {
       <div className="px-12">
         <div className="flex h-[113px] items-center justify-between">
           <div className="flex items-center gap-10">
-            <div className="text-[25px] font-semibold tracking-[-0.02em]">
-              ATELIER RELIC
-            </div>
+            <div className="text-[25px] font-semibold">ATELIER RELIC</div>
 
             <nav>
-              <ul className="flex items-center gap-8 text-[12px] tracking-[0.08em]">
+              <ul className="flex items-center gap-8 text-[12px]">
                 <li className="cursor-pointer hover:opacity-70">MAGAZINE</li>
                 <li className="cursor-pointer hover:opacity-70">SHOP</li>
                 <li className="cursor-pointer hover:opacity-70">ABOUT</li>
@@ -36,7 +34,7 @@ export default function Header() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-8 text-[13px] tracking-[0.08em]">
+          <div className="flex items-center gap-8 text-[13px]">
             <span className="cursor-pointer hover:opacity-70">BAG</span>
             <span className="cursor-pointer hover:opacity-70">MY</span>
             <span className="cursor-pointer hover:opacity-70">JOIN</span>
