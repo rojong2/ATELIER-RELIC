@@ -1,7 +1,7 @@
 export default function Footer() {
   return (
     <footer className="w-full bg-[#513838] py-16 text-center text-white">
-      <div className="mx-auto flex w-full flex-col items-center gap-16">
+      <div className="mx-auto flex w-full flex-col items-center gap-8">
         <div className="mx-auto grid w-full max-w-4xl grid-cols-3 justify-items-center text-xs tracking-[0.15em]">
           <div className="space-y-3 text-center">
             <h3 className="text-[11px] font-semibold tracking-[0.18em]">
@@ -37,10 +37,7 @@ export default function Footer() {
         </div>
 
         <div className="space-y-2">
-          <div className="text-[24px] font-semibold tracking-[0.3em]">
-            ATELIER RELIC
-          </div>
-
+          <div className="text-[35px] font-semibold">ATELIER RELIC</div>
           <div className="space-y-1 text-[10px] leading-relaxed tracking-[0.12em] text-white/80">
             <p>Stay connected with Furniture Archive.</p>
             <p>
