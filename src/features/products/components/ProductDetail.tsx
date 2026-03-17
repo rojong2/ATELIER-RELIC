@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Product } from "@/data/products";
 
@@ -14,7 +14,13 @@ type Props = {
 
 export default function ProductDetail({ product }: Props) {
   const [qty, setQty] = useState(1);
-  const [tab, setTab] = useState<TabKey>("detail");
+  const [active, setActive] = useState<TabKey>("detail");
+  const [showStickyTabs, setShowStickyTabs] = useState(false);
+
+  const tabsStartRef = useRef<HTMLDivElement | null>(null);
+  const detailRef = useRef<HTMLElement | null>(null);
+  const reviewRef = useRef<HTMLElement | null>(null);
+  const qnaRef = useRef<HTMLElement | null>(null);
 
   const crumb = useMemo(
     () => [
@@ -36,11 +42,58 @@ export default function ProductDetail({ product }: Props) {
   const tabClass = (key: TabKey) =>
     [
       "px-0 pb-3 text-[12px] tracking-[0.12em] transition-colors",
-      tab === key ? "text-[#5B3A1A]" : "text-[#9b8a72] hover:text-[#5B3A1A]",
+      active === key ? "text-[#5B3A1A]" : "text-[#9b8a72] hover:text-[#5B3A1A]",
     ].join(" ");
 
+  useEffect(() => {
+    const startEl = tabsStartRef.current;
+    const detailEl = detailRef.current;
+    const reviewEl = reviewRef.current;
+    const qnaEl = qnaRef.current;
+    if (!startEl || !detailEl || !reviewEl || !qnaEl) return;
+
+    const startObs = new IntersectionObserver(
+      ([entry]) => setShowStickyTabs(!entry.isIntersecting),
+      { root: null, threshold: 0 },
+    );
+    startObs.observe(startEl);
+
+    const sectionObs = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort(
+            (a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0),
+          )[0];
+        if (!visible) return;
+        const id = (visible.target as HTMLElement).dataset.section as
+          | TabKey
+          | undefined;
+        if (id) setActive(id);
+      },
+      { root: null, threshold: [0.25, 0.5, 0.75] },
+    );
+
+    [detailEl, reviewEl, qnaEl].forEach((el) => sectionObs.observe(el));
+
+    return () => {
+      startObs.disconnect();
+      sectionObs.disconnect();
+    };
+  }, []);
+
+  const scrollTo = (key: TabKey) => {
+    const el =
+      key === "detail"
+        ? detailRef.current
+        : key === "review"
+          ? reviewRef.current
+          : qnaRef.current;
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <main className="min-h-screen bg-white pb-32 pt-36 text-[#5B3A1A]">
+    <main className="flex items-center justify-center min-h-screen bg-white pb-32 pt-10 text-[#5B3A1A]">
       <section className="mx-auto w-full max-w-6xl px-4 pt-20 sm:px-6 lg:px-12">
         {/* Breadcrumbs */}
         <nav className="mb-8 text-[11px] tracking-[0.12em] text-[#9b8a72]">
@@ -87,6 +140,8 @@ export default function ProductDetail({ product }: Props) {
               </button>
             </div>
 
+            <div className="mt-6 h-px w-full bg-[#ece6dd]" />
+
             <div className="mt-10 space-y-2 text-[12px] leading-relaxed tracking-[0.12em] text-[#9b8a72]">
               <p>Origin: {product.origin}</p>
               <p>Era: {product.era}</p>
@@ -99,7 +154,7 @@ export default function ProductDetail({ product }: Props) {
 
             <div className="mt-6 grid grid-cols-2 gap-2">
               <div className="relative">
-                <select className="h-10 w-full appearance-none rounded border border-[#ece6dd] bg-white px-3 pr-9 text-[11px] tracking-[0.12em] text-[#7b674f] outline-none">
+                <select className="h-10 w-full appearance-none border border-[#ece6dd] bg-white px-3 pr-9 text-[11px] tracking-[0.12em] text-[#7b674f] outline-none">
                   <option>택배</option>
                 </select>
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a72]">
@@ -107,7 +162,7 @@ export default function ProductDetail({ product }: Props) {
                 </span>
               </div>
               <div className="relative">
-                <select className="h-10 w-full appearance-none rounded border border-[#ece6dd] bg-white px-3 pr-9 text-[11px] tracking-[0.12em] text-[#7b674f] outline-none">
+                <select className="h-10 w-full appearance-none border border-[#ece6dd] bg-white px-3 pr-9 text-[11px] tracking-[0.12em] text-[#7b674f] outline-none">
                   <option>배송비(선결제)</option>
                 </select>
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a72]">
@@ -116,8 +171,8 @@ export default function ProductDetail({ product }: Props) {
               </div>
             </div>
 
-            <div className="mt-8 border-t border-[#ece6dd] pt-6">
-              <div className="flex items-center justify-between">
+            <div className="mt-8 border-t border-[#ece6dd] bg-[#fafafa] py-6">
+              <div className="flex items-center justify-between px-4">
                 <span className="text-[11px] tracking-[0.12em] text-[#7b674f]">
                   수량
                 </span>
@@ -126,8 +181,8 @@ export default function ProductDetail({ product }: Props) {
                 </span>
               </div>
 
-              <div className="mt-3 flex items-center justify-between">
-                <div className="inline-flex items-center overflow-hidden rounded border border-[#ece6dd]">
+              <div className="mt-3 flex items-center justify-between px-4">
+                <div className="inline-flex items-center overflow-hidden border border-[#ece6dd] bg-white">
                   <button
                     type="button"
                     onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -155,7 +210,7 @@ export default function ProductDetail({ product }: Props) {
               <span className="text-[#7b674f]">{formatWon(totalPrice)}</span>
             </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-2">
+            <div className="mt-8 grid grid-cols-3 gap-3">
               <button
                 type="button"
                 className="h-11 rounded-full bg-[#b9b0a2] text-[11px] tracking-[0.18em] text-white hover:bg-[#a79d8d]">
@@ -169,44 +224,55 @@ export default function ProductDetail({ product }: Props) {
               <button
                 type="button"
                 className="flex h-11 items-center justify-center gap-2 rounded-full border border-[#ece6dd] bg-white text-[11px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
-                ♡ <span className="text-[#7b674f]">0</span>
+                <span aria-hidden>♡</span>
+                <span className="text-[#7b674f]">0</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="mt-20 border-b border-[#ece6dd]">
-          <div className="flex gap-10">
+        {/* Tabs start sentinel */}
+        <div ref={tabsStartRef} />
+
+        {/* Sticky tabs (appear after reaching sections) */}
+        <div
+          className={`sticky top-0 z-40 border-y border-[#ece6dd] bg-white/95 backdrop-blur transition-opacity ${
+            showStickyTabs ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}>
+          <div className="mx-auto flex max-w-4xl items-center justify-center gap-10 px-4 py-5 text-[12px] tracking-[0.12em] text-[#9b8a72]">
             <button
               type="button"
-              onClick={() => setTab("detail")}
+              onClick={() => scrollTo("detail")}
               className={tabClass("detail")}>
               상세정보
             </button>
+            <span className="text-[#d8cdbf]">/</span>
             <button
               type="button"
-              onClick={() => setTab("review")}
+              onClick={() => scrollTo("review")}
               className={tabClass("review")}>
-              구매평
+              구매평 (0)
             </button>
+            <span className="text-[#d8cdbf]">/</span>
             <button
               type="button"
-              onClick={() => setTab("qna")}
+              onClick={() => scrollTo("qna")}
               className={tabClass("qna")}>
-              Q&amp;A
+              Q&amp;A (0)
             </button>
           </div>
         </div>
 
-        <div className="mt-10">
-          {tab === "detail" ? (
-            <div className="space-y-6 text-[11px] leading-[2.0] tracking-[0.12em] text-[#7b674f]">
-              <p className="text-[#9b8a72]">상품 이미지</p>
-              <div className="h-px w-full bg-[#ece6dd]" />
-              <div className="space-y-3">
+        {/* Sections (stacked, scrollable like original) */}
+        <div className="mx-auto w-full max-w-4xl py-14">
+          <section
+            ref={detailRef}
+            data-section="detail"
+            className="scroll-mt-10">
+            <div className="space-y-10 text-[12px] leading-[2.0] tracking-[0.12em] text-[#7b674f]">
+              <div className="space-y-4">
                 <p className="text-[#5B3A1A]">&lt;교환 및 반품 가능 기간&gt;</p>
-                <ul className="list-disc space-y-2 pl-5">
+                <ul className="list-disc space-y-3 pl-5">
                   <li>
                     계약내용에 관한 서면을 받은 날부터 7일. 다만, 그 서면을 받은
                     때보다 재화등의 공급이 늦게 이루어진 경우에는 재화등을
@@ -221,15 +287,70 @@ export default function ProductDetail({ product }: Props) {
                 </ul>
               </div>
             </div>
-          ) : tab === "review" ? (
-            <div className="text-[11px] tracking-[0.12em] text-[#7b674f]">
-              구매평
+          </section>
+
+          <section
+            ref={reviewRef}
+            data-section="review"
+            className="mt-20 scroll-mt-10">
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-[12px] font-semibold tracking-[0.12em] text-[#5B3A1A]">
+                  구매평 (0)
+                </h2>
+                <p className="mt-2 text-[11px] tracking-[0.12em] text-[#9b8a72]">
+                  상품을 구매하신 분들이 작성한 리뷰입니다.
+                </p>
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 h-9 rounded-full border border-[#ece6dd] px-5 text-[11px] tracking-[0.14em] text-[#d0c6b9]">
+                  구매평 작성
+                </button>
+              </div>
+
+              <div className="h-px w-full bg-[#ece6dd]" />
+
+              <div className="py-24 text-center text-[12px] tracking-[0.12em] text-[#bfb6aa]">
+                등록된 구매평이 없습니다.
+              </div>
             </div>
-          ) : (
-            <div className="text-[11px] tracking-[0.12em] text-[#7b674f]">
-              Q&amp;A
+          </section>
+
+          <section
+            ref={qnaRef}
+            data-section="qna"
+            className="mt-20 scroll-mt-10">
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-[12px] font-semibold tracking-[0.12em] text-[#5B3A1A]">
+                  Q&amp;A (0)
+                </h2>
+                <p className="mt-2 text-[11px] tracking-[0.12em] text-[#9b8a72]">
+                  구매하시려는 상품에 대해 궁금한 점이 있으면 문의주세요.
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled
+                    className="h-9 rounded-full border border-[#ece6dd] px-5 text-[11px] tracking-[0.14em] text-[#d0c6b9]">
+                    셀프문의
+                  </button>
+                  <button
+                    type="button"
+                    className="h-9 rounded-full border border-[#ece6dd] bg-white px-5 text-[11px] tracking-[0.14em] text-[#5B3A1A] hover:bg-[#faf7f2]">
+                    1:1 문의
+                  </button>
+                </div>
+              </div>
+
+              <div className="h-px w-full bg-[#ece6dd]" />
+
+              <div className="py-24 text-center text-[12px] tracking-[0.12em] text-[#bfb6aa]">
+                등록된 문의가 없습니다.
+              </div>
             </div>
-          )}
+          </section>
         </div>
       </section>
     </main>

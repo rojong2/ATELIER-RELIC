@@ -7,8 +7,12 @@ import { useEffect, useState } from "react";
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
 
   useEffect(() => {
+    if (isProductDetail) {
+      return;
+    }
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
     };
@@ -16,7 +20,7 @@ export default function Header() {
     handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isProductDetail]);
 
   const isHome = pathname === "/";
   const useLightHeader = isHome && !isScrolled;
@@ -34,7 +38,7 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 z-50 w-full transition-colors duration-300 ${
+      className={`${isProductDetail ? "relative" : "fixed top-0 left-0"} z-50 w-full transition-colors duration-300 ${
         useLightHeader ? "bg-transparent text-white" : "bg-white text-[#5B3A1A]"
       }`}>
       <div className="px-12">
