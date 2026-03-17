@@ -3,6 +3,7 @@ import { products } from "@/data/products";
 import { magazines } from "@/data/magazines";
 import MagazineCarousel from "@/components/magazine/MagazineCarousel";
 import ProductGridSection from "@/features/products/components/ProductGridSection";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -33,7 +34,9 @@ export default function Home() {
             chosen for their enduring presence.
           </p>
 
-          <button className="pointer-events-auto hero-button">SHOP</button>
+          <Link href="/shop" className="pointer-events-auto hero-button">
+            SHOP
+          </Link>
         </div>
       </div>
       {/* 상품 그리드 섹션 */}

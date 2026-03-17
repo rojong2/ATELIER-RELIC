@@ -1,13 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import type { Product } from "@/data/products";
 
 type Props = {
   products: Product[];
+  showShopNowButton?: boolean;
 };
 
-export default function ProductGridSection({ products }: Props) {
+export default function ProductGridSection({
+  products,
+  showShopNowButton = true,
+}: Props) {
   const orderedProducts = [...products].sort((a, b) => a.id - b.id);
 
   return (
@@ -15,9 +18,11 @@ export default function ProductGridSection({ products }: Props) {
       <div className="mx-auto w-full max-w-8xl">
         <div className="grid justify-items-center gap-x-5 gap-y-20 md:grid-cols-3 px-50">
           {orderedProducts.map((product) => (
-            <article
+            <Link
               key={product.id}
-              className="w-full max-w-[360px] text-center space-y-12 cursor-pointer">
+              href={`/shop/${product.id}`}
+              className="block w-full max-w-[360px] text-center space-y-12 cursor-pointer"
+              aria-label={`View ${product.name}`}>
               <div className="relative mx-auto h-[320px] w-full max-w-[520px] hover:opacity-50 transition duration-300">
                 <Image
                   src={product.image}
@@ -40,19 +45,20 @@ export default function ProductGridSection({ products }: Props) {
                   Era: {product.era}
                 </p>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
 
-        <div className="pt-15 flex justify-center">
-          <Link
-            href="/shop"
-            className="inline-flex h-11 items-center justify-center rounded-full border border-[#5B3A1A] px-12 text-[11px] tracking-[0.24em] !text-[#5B3A1A] transition-colors hover:bg-[#5B3A1A] hover:!text-white">
-            SHOP NOW
-          </Link>
-        </div>
+        {showShopNowButton ? (
+          <div className="pt-15 flex justify-center">
+            <Link
+              href="/shop"
+              className="inline-flex h-11 items-center justify-center rounded-full border border-[#5B3A1A] px-12 text-[11px] tracking-[0.24em] !text-[#5B3A1A] transition-colors hover:bg-[#5B3A1A] hover:!text-white">
+              SHOP NOW
+            </Link>
+          </div>
+        ) : null}
       </div>
     </section>
   );
 }
-
