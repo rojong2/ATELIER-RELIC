@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/component/layout/header";
-import Footer from "@/component/layout/footer";
+import Header from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
 import { Caudex } from "next/font/google";
 
 const caudex = Caudex({
@@ -20,7 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${caudex.className} min-h-screen bg-gray-500 text-white`}>
+      <body
+        className={`${caudex.className} min-h-screen bg-gray-500 text-white`}>
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1 w-full">{children}</main>

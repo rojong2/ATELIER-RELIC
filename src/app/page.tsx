@@ -1,4 +1,8 @@
 import Image from "next/image";
+import { products } from "@/data/products";
+import { magazines } from "@/data/magazines";
+import MagazineCarousel from "@/components/magazine/MagazineCarousel";
+import ProductGridSection from "@/features/products/components/ProductGridSection";
 
 export default function Home() {
   return (
@@ -32,6 +36,37 @@ export default function Home() {
           <button className="pointer-events-auto hero-button">SHOP</button>
         </div>
       </div>
+      {/* 상품 그리드 섹션 */}
+      <section className="flex h-[300px] w-full items-center justify-center">
+        <div className="mx-auto w-full  text-center">
+          <h2 className="text-[60px] font-normal text-[#5B3A1A] pt-20">
+            ABOUT OUR COLLECTION
+          </h2>
+          <p className="mx-auto text-[16px] leading-[1.8] text-[#7b674f] pt-8">
+            We source vintage furniture from local markets and international
+            dealers.
+            <br />
+            All pieces are selected based on condition, material quality, and
+            design relevance.
+          </p>
+        </div>
+      </section>
+
+      <ProductGridSection products={products} />
+
+      {/* 매거진 섹션 */}
+      <section className="flex h-[250px] w-full items-center justify-center">
+        <div className="mx-auto w-full  text-center">
+          <h2 className="text-[60px] font-normal text-[#5B3A1A]">MAGAZINE</h2>
+          <p className="mx-auto text-[18px] leading-[1.8] text-[#7b674f]">
+            OUR STORY
+          </p>
+        </div>
+      </section>
+
+      <section className="flex w-full bg-white pb-24 items-center justify-center">
+        <MagazineCarousel items={magazines} />
+      </section>
     </main>
   );
 }

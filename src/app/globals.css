@@ -12,7 +12,7 @@ body {
 }
 
 body {
-  background: gray;
+  background: white;
 }
 
 a {
@@ -50,7 +50,7 @@ ol {
   font-size: 13px;
   line-height: 1.6;
   letter-spacing: 0.18em;
-  margin-bottom: 100px;
+  margin-bottom: 50px;
 }
 
 .hero-button {
