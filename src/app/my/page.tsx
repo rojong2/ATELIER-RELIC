@@ -143,7 +143,7 @@ export default function MyPage() {
   return (
     <main className="flex min-h-screen justify-center bg-white px-6 py-24 text-[#5B3A1A] pt-70">
       <div className="w-full max-w-[800px]">
-        <h1 className="mb-12 text-center text-[30px] font-bold tracking-[0.14em]">
+        <h1 className="mb-12 text-center text-[30px] font-bold tracking-[0.14em] pb-3">
           MY PAGE
         </h1>
 
