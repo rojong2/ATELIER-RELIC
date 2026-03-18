@@ -1,14 +1,14 @@
 import type { StaticImageData } from "next/image";
 
-import cover1 from "../../public/product1.png";
-import cover2 from "../../public/product2.png";
-import cover3 from "../../public/product3.png";
-import cover4 from "../../public/product4.png";
-import cover5 from "../../public/product5.png";
-import cover6 from "../../public/product6.png";
-import cover7 from "../../public/product7.png";
-import cover8 from "../../public/product8.png";
-import cover9 from "../../public/product9.png";
+import cover1 from "../../public/magazine1.jpg";
+import cover2 from "../../public/magazine2.jpg";
+import cover3 from "../../public/magazine3.jpg";
+import cover4 from "../../public/magazine4.jpg";
+import cover5 from "../../public/magazine5.jpg";
+import cover6 from "../../public/magazine6.jpg";
+import cover7 from "../../public/magazine7.jpg";
+import cover8 from "../../public/magazine8.jpg";
+import cover9 from "../../public/magazine9.jpg";
 
 export type MagazineCard = {
   id: number;
