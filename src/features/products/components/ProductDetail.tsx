@@ -16,6 +16,12 @@ export default function ProductDetail({ product }: Props) {
   const [qty, setQty] = useState(1);
   const [active, setActive] = useState<TabKey>("detail");
   const [showStickyTabs, setShowStickyTabs] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState<
+    "택배" | "방문수령" | "퀵 서비스"
+  >("택배");
+  const [paymentMethod, setPaymentMethod] = useState<"선결제" | "착불">(
+    "선결제",
+  );
 
   const tabsStartRef = useRef<HTMLDivElement | null>(null);
   const detailRef = useRef<HTMLElement | null>(null);
@@ -94,9 +100,9 @@ export default function ProductDetail({ product }: Props) {
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-white pb-32 pt-10 text-[#5B3A1A]">
-      <section className="mx-auto w-full max-w-6xl px-4 pt-20 sm:px-6 lg:px-12">
+      <section className="mx-auto w-full max-w-8xl !px-50 pt-20 sm:px-6 lg:px-12">
         {/* Breadcrumbs */}
-        <nav className="mb-8 text-[11px] tracking-[0.12em] text-[#9b8a72]">
+        <nav className="mb-8 text-[15px] tracking-[0.12em] text-[#9b8a72] font-bold">
           <ol className="flex flex-wrap items-center gap-2">
             {crumb.map((c, idx) => (
               <li key={c.href} className="flex items-center gap-2">
@@ -110,25 +116,25 @@ export default function ProductDetail({ product }: Props) {
         </nav>
 
         {/* Top */}
-        <div className="mx-auto grid w-full gap-10 md:grid-cols-[minmax(0,1fr)_420px] md:items-start">
-          <div className="relative mx-auto h-[520px] w-full max-w-[760px] overflow-hidden bg-[#e9e9e9] md:mx-0">
+        <div className="mx-auto grid gap-10 w-full md:grid-cols-[minmax(0,1fr)_550px] md:items-start pt-10">
+          <div className="relative mx-auto h-[490px] w-full max-w-[610px] overflow-hidden md:ml-auto md:mr-0">
             <Image
               src={product.image}
               alt={product.name}
               fill
               priority
               sizes="(min-width: 768px) 60vw, 90vw"
-              className="object-contain p-10"
+              className="object-contain"
             />
           </div>
 
-          <div className="mx-auto w-full max-w-[420px] border border-transparent md:mx-0 md:pt-1">
-            <div className="flex items-start justify-between gap-6">
+          <div className="mx-auto w-full max-w-[420px] border border-transparent md:mx-0 md:ml-0 md:pt-1">
+            <div className="flex items-start justify-between gap-6 pb-15">
               <div>
-                <h1 className="text-[14px] font-semibold tracking-[0.14em]">
+                <h1 className="text-[17px] font-bold ">
                   {product.name.toUpperCase()}
                 </h1>
-                <p className="mt-4 text-[13px] tracking-[0.12em] text-[#7b674f]">
+                <p className="pt-3 text-[14px] tracking-[0.12em] text-[#7b674f]">
                   {product.price}
                 </p>
               </div>
@@ -136,47 +142,85 @@ export default function ProductDetail({ product }: Props) {
                 type="button"
                 aria-label="Share"
                 className="mt-1 h-8 w-8 rounded-full border border-[#ece6dd] text-[#9b8a72] hover:text-[#5B3A1A]">
-                ⤴
+                <Image src="/share.png" alt="Share" width={16} height={16} />
               </button>
             </div>
 
             <div className="mt-6 h-px w-full bg-[#ece6dd]" />
 
-            <div className="mt-10 space-y-2 text-[12px] leading-relaxed tracking-[0.12em] text-[#9b8a72]">
+            <div className="mt-10 space-y-2 text-[15px] leading-relaxed  text-[#9b8a72] pt-7 pb-10">
               <p>Origin: {product.origin}</p>
-              <p>Era: {product.era}</p>
+              <p className="pt-3">Era: {product.era}</p>
             </div>
 
-            <div className="mt-8 text-[11px] tracking-[0.12em] text-[#7b674f]">
-              <span className="font-semibold text-[#5B3A1A]">배송비</span> 무료
-              (0원 이상 무료배송)
-            </div>
+            {deliveryMethod === "택배" && (
+              <div className="mt-8 text-[13px] tracking-[0.12em] text-[#7b674f]">
+                <span className="font-semibold text-[#5B3A1A]">배송비</span>{" "}
+                무료 (50,000원 이상 무료배송)
+              </div>
+            )}
+
+            {deliveryMethod === "퀵 서비스" && (
+              <div className="mt-8 text-[13px] tracking-[0.12em] text-[#7b674f]">
+                <span className="font-semibold text-[#5B3A1A]">배송비</span>{" "}
+                착불
+              </div>
+            )}
 
             <div className="mt-6 grid grid-cols-2 gap-2">
               <div className="relative">
-                <select className="h-10 w-full appearance-none border border-[#ece6dd] bg-white px-3 pr-9 text-[11px] tracking-[0.12em] text-[#7b674f] outline-none">
-                  <option>택배</option>
+                <select
+                  value={deliveryMethod}
+                  onChange={(e) =>
+                    setDeliveryMethod(
+                      e.target.value as "택배" | "방문수령" | "퀵 서비스",
+                    )
+                  }
+                  className="h-10 w-full appearance-none border border-[#ece6dd] bg-white px-3 pr-9 text-[13px] tracking-[0.12em] text-[#7b674f] outline-none">
+                  <option value="택배">택배</option>
+                  <option value="방문수령">방문수령</option>
+                  <option value="퀵 서비스">퀵 서비스</option>
                 </select>
                 <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a72]">
                   ▾
                 </span>
               </div>
-              <div className="relative">
-                <select className="h-10 w-full appearance-none border border-[#ece6dd] bg-white px-3 pr-9 text-[11px] tracking-[0.12em] text-[#7b674f] outline-none">
-                  <option>배송비(선결제)</option>
-                </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a72]">
-                  ▾
-                </span>
-              </div>
+
+              {deliveryMethod === "택배" && (
+                <div className="relative">
+                  <select
+                    value={`배송비(${paymentMethod})`}
+                    onChange={(e) =>
+                      setPaymentMethod(
+                        e.target.value.includes("선결제") ? "선결제" : "착불",
+                      )
+                    }
+                    className="h-10 w-full appearance-none border border-[#ece6dd] bg-white px-3 pr-9 text-[13px] tracking-[0.12em] text-[#7b674f] outline-none">
+                    <option value="배송비(선결제)">배송비(선결제)</option>
+                    <option value="배송비(착불)">배송비(착불)</option>
+                  </select>
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a72]">
+                    ▾
+                  </span>
+                </div>
+              )}
+
+              {deliveryMethod === "방문수령" && (
+                <button
+                  type="button"
+                  className="h-10 border border-[#ece6dd] bg-white text-[13px] tracking-[0.12em] text-[#7b674f] hover:bg-[#faf7f2]">
+                  {/* TODO: 위치확인 버튼 회원정보의 배송지 정보에서 가져오기 */}
+                  위치확인
+                </button>
+              )}
             </div>
 
-            <div className="mt-8 border-t border-[#ece6dd] bg-[#fafafa] py-6">
-              <div className="flex items-center justify-between px-4">
-                <span className="text-[11px] tracking-[0.12em] text-[#7b674f]">
+            <div className="pt-8 border-t border-[#ece6dd] bg-[#3d3d3d08] py-6">
+              <div className="flex items-center justify-between px-4 pb-3">
+                <span className="text-[13px] tracking-[0.12em] text-[#7b674f]">
                   수량
                 </span>
-                <span className="text-[11px] tracking-[0.12em] text-[#7b674f]">
+                <span className="text-[13px] tracking-[0.12em] text-[#7b674f]">
                   {formatWon(unitPrice)}
                 </span>
               </div>
@@ -189,7 +233,7 @@ export default function ProductDetail({ product }: Props) {
                     className="h-9 w-9 text-[#7b674f] hover:bg-[#faf7f2]">
                     -
                   </button>
-                  <div className="h-9 min-w-10 border-x border-[#ece6dd] text-center text-[11px] leading-9 text-[#5B3A1A]">
+                  <div className="h-9 min-w-10 border-x border-[#ece6dd] text-center text-[13px] leading-9 text-[#5B3A1A]">
                     {qty}
                   </div>
                   <button
@@ -199,31 +243,34 @@ export default function ProductDetail({ product }: Props) {
                     +
                   </button>
                 </div>
-                <div className="text-[11px] tracking-[0.12em] text-[#7b674f]">
+                <div className="text-[13px] tracking-[0.12em] text-[#7b674f]">
                   {formatWon(totalPrice)}
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 flex items-center justify-between text-[11px] tracking-[0.12em]">
+            <div className="pt-13 flex items-center justify-between text-[13px] tracking-[0.12em]">
               <span className="text-[#7b674f]">총 상품금액({qty}개)</span>
               <span className="text-[#7b674f]">{formatWon(totalPrice)}</span>
             </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-3">
+            <div className="mt-8 grid grid-cols-3 gap-3 pt-11">
+              {/* TODO: 구매하기 버튼 클릭 시 로그인 확인 후 로그인 안되있으면 로그인 페이지로 이동 되있으면 구매 페이지로 이동*/}
               <button
                 type="button"
-                className="h-11 rounded-full bg-[#b9b0a2] text-[11px] tracking-[0.18em] text-white hover:bg-[#a79d8d]">
+                className="h-11 rounded-full bg-[#b9b0a2] text-[13px] tracking-[0.18em] text-white hover:bg-[#a79d8d]">
                 구매하기
               </button>
+              {/* TODO: 장바구니 버튼 클릭 시 장바구니에 담았다는 alter 알려주고 계속 쇼핑 / 장바구니 로 이동하는 기능 추가*/}
               <button
                 type="button"
-                className="h-11 rounded-full border border-[#ece6dd] bg-white text-[11px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
+                className="h-11 rounded-full border border-[#ece6dd] bg-white text-[13px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
                 장바구니
               </button>
               <button
                 type="button"
-                className="flex h-11 items-center justify-center gap-2 rounded-full border border-[#ece6dd] bg-white text-[11px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
+                className="flex h-11 items-center justify-center gap-2 rounded-full border border-[#ece6dd] bg-white text-[13px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
+                {/* TODO: 좋아요 버튼 클릭 시 좋아요 수 증가 및 좋아요 버튼 색상 변경*/}
                 <span aria-hidden>♡</span>
                 <span className="text-[#7b674f]">0</span>
               </button>
@@ -231,10 +278,33 @@ export default function ProductDetail({ product }: Props) {
           </div>
         </div>
 
-        {/* Tabs start sentinel */}
-        <div ref={tabsStartRef} />
+        <div
+          ref={tabsStartRef}
+          className="mx-auto mt-16 w-full border-b border-[#ece6dd] bg-white pt-20">
+          <div className="mx-auto flex w-full items-center justify-center gap-10 px-4 py-5 text-[20px] tracking-[0.12em] text-[#9b8a72] font-bold">
+            <button
+              type="button"
+              onClick={() => scrollTo("detail")}
+              className={tabClass("detail")}>
+              상세정보
+            </button>
+            <span className="text-[#d8cdbf]">/</span>
+            <button
+              type="button"
+              onClick={() => scrollTo("review")}
+              className={tabClass("review")}>
+              구매평 (0)
+            </button>
+            <span className="text-[#d8cdbf]">/</span>
+            <button
+              type="button"
+              onClick={() => scrollTo("qna")}
+              className={tabClass("qna")}>
+              Q&amp;A (0)
+            </button>
+          </div>
+        </div>
 
-        {/* Sticky tabs (appear after reaching sections) */}
         <div
           className={`sticky top-0 z-40 border-y border-[#ece6dd] bg-white/95 backdrop-blur transition-opacity ${
             showStickyTabs ? "opacity-100" : "pointer-events-none opacity-0"
@@ -263,26 +333,27 @@ export default function ProductDetail({ product }: Props) {
           </div>
         </div>
 
-        {/* Sections (stacked, scrollable like original) */}
-        <div className="mx-auto w-full max-w-4xl py-14">
+        <div className="mx-auto w-full max-w-8xl pb-14">
           <section
             ref={detailRef}
             data-section="detail"
             className="scroll-mt-10">
             <div className="space-y-10 text-[12px] leading-[2.0] tracking-[0.12em] text-[#7b674f]">
               <div className="space-y-4">
-                <p className="text-[#5B3A1A]">&lt;교환 및 반품 가능 기간&gt;</p>
-                <ul className="list-disc space-y-3 pl-5">
+                <p className="text-[#5B3A1A] text-[15px] font-bold pb-3">
+                  &lt;교환 및 반품 가능 기간&gt;
+                </p>
+                <ul className="list-disc space-y-3 pl-5 text-[13px]">
                   <li>
-                    계약내용에 관한 서면을 받은 날부터 7일. 다만, 그 서면을 받은
-                    때보다 재화등의 공급이 늦게 이루어진 경우에는 재화등을
+                    - 계약내용에 관한 서면을 받은 날부터 7일. 다만, 그 서면을
+                    받은 때보다 재화등의 공급이 늦게 이루어진 경우에는 재화등을
                     공급받거나 재화등의 공급이 시작된 날부터 7일
                   </li>
                   <li>
-                    공급받은 상품 및 용역의 내용이 표시﹒광고의 내용과 다르거나
-                    계약내용과 다르게 이행된 경우에는 그 재화등을 공급받은 날
-                    부터 3개월 이내, 그 사실을 안 날 또는 알 수 있었던 날부터
-                    30일이내
+                    - 공급받은 상품 및 용역의 내용이 표시﹒광고의 내용과
+                    다르거나 계약내용과 다르게 이행된 경우에는 그 재화등을
+                    공급받은 날 부터 3개월 이내, 그 사실을 안 날 또는 알 수
+                    있었던 날부터 30일이내
                   </li>
                 </ul>
               </div>
@@ -292,13 +363,13 @@ export default function ProductDetail({ product }: Props) {
           <section
             ref={reviewRef}
             data-section="review"
-            className="mt-20 scroll-mt-10">
+            className="mt-20 scroll-mt-10 pt-15">
             <div className="space-y-8">
               <div>
-                <h2 className="text-[12px] font-semibold tracking-[0.12em] text-[#5B3A1A]">
+                <h2 className="text-[15px] font-semibold tracking-[0.12em] text-[#5B3A1A] pb-2">
                   구매평 (0)
                 </h2>
-                <p className="mt-2 text-[11px] tracking-[0.12em] text-[#9b8a72]">
+                <p className="mt-2 text-[13px] tracking-[0.12em] text-[#9b8a72] pb-2">
                   상품을 구매하신 분들이 작성한 리뷰입니다.
                 </p>
                 <button
@@ -323,18 +394,19 @@ export default function ProductDetail({ product }: Props) {
             className="mt-20 scroll-mt-10">
             <div className="space-y-8">
               <div>
-                <h2 className="text-[12px] font-semibold tracking-[0.12em] text-[#5B3A1A]">
+                <h2 className="text-[15px] font-semibold tracking-[0.12em] text-[#5B3A1A] pb-2">
                   Q&amp;A (0)
                 </h2>
-                <p className="mt-2 text-[11px] tracking-[0.12em] text-[#9b8a72]">
+                <p className="mt-2 text-[13px] tracking-[0.12em] text-[#9b8a72] pb-2">
                   구매하시려는 상품에 대해 궁금한 점이 있으면 문의주세요.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
+                  {/* TODO: 버튼 클릭 시 로그인 확인 후 로그인 안되있으면 로그인 페이지로 이동 되있으면 문의 페이지로 이동*/}
                   <button
                     type="button"
                     disabled
                     className="h-9 rounded-full border border-[#ece6dd] px-5 text-[11px] tracking-[0.14em] text-[#d0c6b9]">
-                    셀프문의
+                    상품문의
                   </button>
                   <button
                     type="button"
