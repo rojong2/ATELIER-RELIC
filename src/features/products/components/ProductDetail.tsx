@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { Product } from "@/data/products";
+import { type Product, formatPrice } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 
@@ -34,8 +34,8 @@ export default function ProductDetail({ product }: Props) {
     toggleItem({
       id: product.id,
       name: product.name,
-      price: product.price,
-      image: product.image,
+      price: formatPrice(product.price),
+      image: product.image_url,
     });
   };
 
@@ -52,11 +52,7 @@ export default function ProductDetail({ product }: Props) {
     [],
   );
 
-  const unitPrice = useMemo(() => {
-    const n = Number(product.price.replace(/[^\d]/g, ""));
-    return Number.isFinite(n) ? n : 0;
-  }, [product.price]);
-
+  const unitPrice = product.price;
   const totalPrice = unitPrice * qty;
 
   const formatWon = (value: number) => `${value.toLocaleString("ko-KR")}원`;
@@ -67,7 +63,7 @@ export default function ProductDetail({ product }: Props) {
         id: product.id,
         name: product.name,
         price: unitPrice,
-        image: product.image,
+        image: product.image_url,
       });
     }
     setShowCartModal(true);
@@ -147,7 +143,7 @@ export default function ProductDetail({ product }: Props) {
         <div className="mx-auto grid gap-10 w-full md:grid-cols-[minmax(0,1fr)_550px] md:items-start pt-10">
           <div className="relative mx-auto h-[490px] w-full max-w-[610px] overflow-hidden md:ml-auto md:mr-0">
             <Image
-              src={product.image}
+              src={product.image_url}
               alt={product.name}
               fill
               priority
@@ -163,7 +159,7 @@ export default function ProductDetail({ product }: Props) {
                   {product.name.toUpperCase()}
                 </h1>
                 <p className="pt-3 text-[14px] tracking-[0.12em] text-[#7b674f]">
-                  {product.price}
+                  {formatWon(product.price)}
                 </p>
               </div>
               <button

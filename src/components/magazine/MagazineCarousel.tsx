@@ -1,19 +1,41 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-import type { MagazineCard } from "@/data/magazines";
-import Link from "next/link";
+import { supabase, type Magazine } from "@/lib/supabase";
 
 type Props = {
-  items: MagazineCard[];
   perPage?: number;
 };
 
-export default function MagazineCarousel({ items, perPage = 3 }: Props) {
+export default function MagazineCarousel({ perPage = 3 }: Props) {
+  const [items, setItems] = useState<Magazine[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMagazines = async () => {
+      const { data, error } = await supabase
+        .from("magazines")
+        .select("*")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(9);
+
+      if (error) {
+        console.error("Error fetching magazines:", error);
+      } else {
+        setItems(data || []);
+      }
+      setLoading(false);
+    };
+
+    fetchMagazines();
+  }, []);
+
   const pages = useMemo(() => {
-    const out: MagazineCard[][] = [];
+    const out: Magazine[][] = [];
     for (let i = 0; i < items.length; i += perPage) {
       out.push(items.slice(i, i + perPage));
     }
@@ -30,6 +52,26 @@ export default function MagazineCarousel({ items, perPage = 3 }: Props) {
     return () => window.clearInterval(id);
   }, [pages.length]);
 
+  if (loading) {
+    return (
+      <div className="flex h-[400px] w-full items-center justify-center">
+        <div className="text-[14px] tracking-[0.08em] text-[#9b8a72]">
+          로딩 중...
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="flex h-[400px] w-full items-center justify-center">
+        <div className="text-[14px] tracking-[0.08em] text-[#9b8a72]">
+          매거진이 없습니다.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full">
       <div className="relative overflow-hidden">
@@ -45,7 +87,7 @@ export default function MagazineCarousel({ items, perPage = 3 }: Props) {
                     className="group cursor-pointer border border-[#ece6dd] bg-white">
                     <div className="relative h-[190px] w-full overflow-hidden bg-[#f3f3f3] md:h-[210px]">
                       <Image
-                        src={card.image}
+                        src={card.image_url}
                         alt={card.title}
                         fill
                         sizes="(min-width: 768px) 33vw, 90vw"
@@ -69,7 +111,7 @@ export default function MagazineCarousel({ items, perPage = 3 }: Props) {
       </div>
 
       {/* Dots */}
-      <div className="pt-5 flex items-center justify-center gap-3">
+      <div className="flex items-center justify-center gap-3 pt-5">
         {pages.map((_, idx) => (
           <button
             key={idx}
@@ -85,7 +127,7 @@ export default function MagazineCarousel({ items, perPage = 3 }: Props) {
         ))}
       </div>
 
-      <div className="pt-15 flex justify-center">
+      <div className="flex justify-center pt-15">
         <Link
           href="/magazine"
           className="inline-flex h-11 items-center justify-center rounded-full border border-[#5B3A1A] px-12 text-[11px] tracking-[0.24em] !text-[#5B3A1A] transition-colors hover:bg-[#5B3A1A] hover:!text-white">

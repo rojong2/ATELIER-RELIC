@@ -19,7 +19,7 @@ export default function AboutPage() {
             <div className="mx-auto w-full max-w-[560px]">
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#e9e9e9]">
                 <Image
-                  src="/about1.png"
+                  src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/about/about1.PNG"
                   alt="Furniture Archive showroom"
                   fill
                   priority
@@ -37,7 +37,7 @@ export default function AboutPage() {
           <div className="grid items-start gap-10 md:grid-cols-[1fr_360px] md:gap-14">
             <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#e9e9e9]">
               <Image
-                src="/about2.png"
+                src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/about/about2.PNG"
                 alt="Furniture Archive interior"
                 fill
                 sizes="(min-width: 768px) 60vw, 90vw"

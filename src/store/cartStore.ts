@@ -1,4 +1,3 @@
-import type { StaticImageData } from "next/image";
 import { create } from "zustand";
 
 export type CartItem = {
@@ -6,7 +5,7 @@ export type CartItem = {
   name: string;
   price: number;
   qty: number;
-  image: StaticImageData;
+  image: string;
   selected: boolean;
 };
 

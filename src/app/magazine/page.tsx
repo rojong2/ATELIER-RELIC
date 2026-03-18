@@ -1,4 +1,3 @@
-import { magazines } from "@/data/magazines";
 import MagazineGridSection from "@/features/magazine/components/MagazineGridSection";
 
 export default function MagazinePage() {
@@ -13,7 +12,7 @@ export default function MagazinePage() {
         </div>
       </section>
 
-      <MagazineGridSection items={magazines} />
+      <MagazineGridSection />
     </main>
   );
 }

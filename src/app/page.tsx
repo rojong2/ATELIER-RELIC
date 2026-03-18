@@ -1,16 +1,15 @@
 import Image from "next/image";
-import { products } from "@/data/products";
-import { magazines } from "@/data/magazines";
+import Link from "next/link";
+
 import MagazineCarousel from "@/components/magazine/MagazineCarousel";
 import ProductGridSection from "@/features/products/components/ProductGridSection";
-import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="relative w-full">
       <div className="relative h-screen w-full">
         <Image
-          src="/home.png"
+          src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/home/home.png"
           alt="ATELIER RELIC home"
           fill
           priority
@@ -19,7 +18,7 @@ export default function Home() {
 
         <div className="pointer-events-none hero-overlay">
           <Image
-            src="/home_title.png"
+            src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/home/home_title.png"
             width={1200}
             height={1200}
             alt="ATELIER RELIC home title"
@@ -55,7 +54,7 @@ export default function Home() {
         </div>
       </section>
 
-      <ProductGridSection products={products} />
+      <ProductGridSection />
 
       {/* 매거진 섹션 */}
       <section className="flex h-[250px] w-full items-center justify-center">
@@ -68,7 +67,7 @@ export default function Home() {
       </section>
 
       <section className="flex w-full bg-white pb-24 items-center justify-center">
-        <MagazineCarousel items={magazines} />
+        <MagazineCarousel />
       </section>
     </main>
   );

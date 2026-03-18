@@ -1,11 +1,10 @@
-import type { StaticImageData } from "next/image";
 import { create } from "zustand";
 
 export type WishlistItem = {
   id: number;
   name: string;
   price: string;
-  image: StaticImageData;
+  image: string;
 };
 
 type WishlistState = {
