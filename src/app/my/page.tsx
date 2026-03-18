@@ -1,6 +1,10 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
+
+import { useWishlistStore } from "@/store/wishlistStore";
 
 type Address = {
   id: number;
@@ -19,9 +23,12 @@ type Profile = {
 };
 
 export default function MyPage() {
-  const [activeTab, setActiveTab] = useState<"profile" | "address" | "orders">(
-    "profile",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "address" | "orders" | "wishlist"
+  >("profile");
+
+  const { items: wishlistItems, removeItem: removeWishlistItem } =
+    useWishlistStore();
 
   const [profile, setProfile] = useState<Profile>({
     name: "홍길동",
@@ -139,7 +146,9 @@ export default function MyPage() {
         ? "border-b-2 border-[#5B3A1A] text-[#5B3A1A]"
         : "text-[#9b8a72] hover:text-[#5B3A1A]"
     }`;
-
+  {
+    /* TODO: 로그인 안되있으면 로그인 페이지로 이동*/
+  }
   return (
     <main className="flex min-h-screen justify-center bg-white px-6 py-24 text-[#5B3A1A] pt-70">
       <div className="w-full max-w-[800px]">
@@ -165,6 +174,12 @@ export default function MyPage() {
             onClick={() => setActiveTab("orders")}
             className={tabClass("orders")}>
             주문내역
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("wishlist")}
+            className={tabClass("wishlist")}>
+            관심상품
           </button>
         </div>
 
@@ -493,6 +508,50 @@ export default function MyPage() {
             <div className="py-16 text-center text-[13px] tracking-[0.08em] text-[#9b8a72]">
               주문 내역이 없습니다.
             </div>
+          </section>
+        )}
+
+        {activeTab === "wishlist" && (
+          <section>
+            {wishlistItems.length === 0 ? (
+              <div className="py-16 text-center text-[13px] tracking-[0.08em] text-[#9b8a72]">
+                관심상품이 없습니다.
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {wishlistItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded border border-[#ece6dd] p-4">
+                    <Link href={`/shop/${item.id}`}>
+                      <div className="relative mx-auto h-[180px] w-full bg-[#f5f5f5]">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          sizes="(min-width: 768px) 250px, 100vw"
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="mt-4 text-center">
+                        <p className="text-[13px] tracking-[0.08em] text-[#5B3A1A]">
+                          {item.name}
+                        </p>
+                        <p className="mt-1 text-[12px] tracking-[0.08em] text-[#7b674f]">
+                          {item.price}
+                        </p>
+                      </div>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => removeWishlistItem(item.id)}
+                      className="mt-4 w-full rounded border border-[#ece6dd] py-2 text-[11px] tracking-[0.08em] text-[#7b674f] transition hover:bg-[#faf7f2]">
+                      삭제
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
       </div>

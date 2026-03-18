@@ -75,8 +75,11 @@ export default function Header() {
             </nav>
           </div>
 
+          {/* TODO: 로그인 시 join 버튼 안보이게 */}
           <div className="flex items-center gap-8 text-[13px]">
-            <Link href="/cart" className="relative cursor-pointer hover:opacity-70">
+            <Link
+              href="/cart"
+              className="relative cursor-pointer hover:opacity-70">
               BAG
               {cartCount > 0 && (
                 <span className="absolute -right-4 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#b9b0a2] text-[9px] text-white">

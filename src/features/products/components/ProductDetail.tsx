@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Product } from "@/data/products";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 type TabKey = "detail" | "review" | "qna";
 
@@ -26,6 +27,17 @@ export default function ProductDetail({ product }: Props) {
   const [showCartModal, setShowCartModal] = useState(false);
 
   const addItem = useCartStore((state) => state.addItem);
+  const { items: wishlistItems, toggleItem } = useWishlistStore();
+  const isLiked = wishlistItems.some((item) => item.id === product.id);
+
+  const handleToggleLike = () => {
+    toggleItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+    });
+  };
 
   const tabsStartRef = useRef<HTMLDivElement | null>(null);
   const detailRef = useRef<HTMLElement | null>(null);
@@ -285,10 +297,16 @@ export default function ProductDetail({ product }: Props) {
               </button>
               <button
                 type="button"
-                className="flex h-11 items-center justify-center gap-2 rounded-full border border-[#ece6dd] bg-white text-[13px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
-                {/* TODO: 좋아요 버튼 클릭 시 좋아요 수 증가 및 좋아요 버튼 색상 변경*/}
-                <span aria-hidden>♡</span>
-                <span className="text-[#7b674f]">0</span>
+                onClick={handleToggleLike}
+                className={`flex h-11 items-center justify-center gap-2 rounded-full border text-[13px] tracking-[0.18em] transition ${
+                  isLiked
+                    ? "border-[#e74c3c] bg-[#e74c3c] text-white hover:bg-[#c0392b]"
+                    : "border-[#ece6dd] bg-white text-[#5B3A1A] hover:bg-[#faf7f2]"
+                }`}>
+                <span aria-hidden>{isLiked ? "♥" : "♡"}</span>
+                <span className={isLiked ? "text-white" : "text-[#7b674f]"}>
+                  {isLiked ? 1 : 0}
+                </span>
               </button>
             </div>
           </div>
