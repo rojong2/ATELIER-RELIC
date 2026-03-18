@@ -175,6 +175,9 @@ CREATE POLICY "Users can view own profile" ON users
 CREATE POLICY "Users can update own profile" ON users
   FOR UPDATE USING (auth.uid() = id);
 
+CREATE POLICY "Enable insert for service role" ON users
+  FOR INSERT WITH CHECK (true);
+
 -- Addresses: 본인 배송지만 조회/수정/삭제
 CREATE POLICY "Users can view own addresses" ON addresses
   FOR SELECT USING (auth.uid() = user_id);
