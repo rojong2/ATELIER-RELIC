@@ -4,9 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { useCartStore } from "@/store/cartStore";
+
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+  const cartItems = useCartStore((state) => state.items);
+  const cartCount = cartItems.length;
   const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
 
   useEffect(() => {
@@ -30,7 +34,9 @@ export default function Header() {
     return [
       "relative inline-block transition-opacity",
       isActive ? "opacity-100" : "opacity-80 hover:opacity-70",
-      isActive ? "after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:bg-current after:content-['']" : "",
+      isActive
+        ? "after:absolute after:-bottom-1 after:left-0 after:h-px after:w-full after:bg-current after:content-['']"
+        : "",
     ]
       .filter(Boolean)
       .join(" ");
@@ -70,8 +76,13 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-8 text-[13px]">
-            <Link href="/bag" className="cursor-pointer hover:opacity-70">
+            <Link href="/cart" className="relative cursor-pointer hover:opacity-70">
               BAG
+              {cartCount > 0 && (
+                <span className="absolute -right-4 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#b9b0a2] text-[9px] text-white">
+                  {cartCount}
+                </span>
+              )}
             </Link>
             <Link href="/my" className="cursor-pointer hover:opacity-70">
               MY

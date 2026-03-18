@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Product } from "@/data/products";
+import { useCartStore } from "@/store/cartStore";
 
 type TabKey = "detail" | "review" | "qna";
 
@@ -22,6 +23,9 @@ export default function ProductDetail({ product }: Props) {
   const [paymentMethod, setPaymentMethod] = useState<"선결제" | "착불">(
     "선결제",
   );
+  const [showCartModal, setShowCartModal] = useState(false);
+
+  const addItem = useCartStore((state) => state.addItem);
 
   const tabsStartRef = useRef<HTMLDivElement | null>(null);
   const detailRef = useRef<HTMLElement | null>(null);
@@ -44,6 +48,18 @@ export default function ProductDetail({ product }: Props) {
   const totalPrice = unitPrice * qty;
 
   const formatWon = (value: number) => `${value.toLocaleString("ko-KR")}원`;
+
+  const handleAddToCart = () => {
+    for (let i = 0; i < qty; i++) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: unitPrice,
+        image: product.image,
+      });
+    }
+    setShowCartModal(true);
+  };
 
   const tabClass = (key: TabKey) =>
     [
@@ -261,9 +277,9 @@ export default function ProductDetail({ product }: Props) {
                 className="h-11 rounded-full bg-[#b9b0a2] text-[13px] tracking-[0.18em] text-white hover:bg-[#a79d8d]">
                 구매하기
               </button>
-              {/* TODO: 장바구니 버튼 클릭 시 장바구니에 담았다는 alter 알려주고 계속 쇼핑 / 장바구니 로 이동하는 기능 추가*/}
               <button
                 type="button"
+                onClick={handleAddToCart}
                 className="h-11 rounded-full border border-[#ece6dd] bg-white text-[13px] tracking-[0.18em] text-[#5B3A1A] hover:bg-[#faf7f2]">
                 장바구니
               </button>
@@ -425,6 +441,30 @@ export default function ProductDetail({ product }: Props) {
           </section>
         </div>
       </section>
+
+      {showCartModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-[360px] rounded-[10px] bg-white p-8 text-center">
+            <p className="text-[14px] tracking-[0.08em] text-[#5B3A1A]">
+              선택하신 상품을 장바구니에 담았습니다.
+            </p>
+            <div className="h-4" aria-hidden="true" />
+            <div className="mt-8 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setShowCartModal(false)}
+                className="h-10 flex-1 rounded-full border border-[#ece6dd] bg-white text-[12px] tracking-[0.12em] text-[#7b674f] transition hover:bg-[#faf7f2]">
+                계속쇼핑
+              </button>
+              <Link
+                href="/cart"
+                className="flex h-10 flex-1 items-center justify-center rounded-full bg-[#b9b0a2] text-[12px] tracking-[0.12em] text-white transition hover:bg-[#a79d8d]">
+                장바구니
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
