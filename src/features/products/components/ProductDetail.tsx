@@ -25,6 +25,7 @@ export default function ProductDetail({ product }: Props) {
     "선결제",
   );
   const [showCartModal, setShowCartModal] = useState(false);
+  const [showCopied, setShowCopied] = useState(false);
 
   const addItem = useCartStore((state) => state.addItem);
   const { items: wishlistItems, toggleItem } = useWishlistStore();
@@ -37,6 +38,16 @@ export default function ProductDetail({ product }: Props) {
       price: formatPrice(product.price),
       image: product.image_url,
     });
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setShowCopied(true);
+      setTimeout(() => setShowCopied(false), 2000);
+    } catch {
+      console.error("Failed to copy link");
+    }
   };
 
   const tabsStartRef = useRef<HTMLDivElement | null>(null);
@@ -162,17 +173,25 @@ export default function ProductDetail({ product }: Props) {
                   {formatWon(product.price)}
                 </p>
               </div>
-              <button
-                type="button"
-                aria-label="Share"
-                className="mt-1 h-8 w-8 rounded-full border border-[#ece6dd] text-[#9b8a72] hover:text-[#5B3A1A]">
-                <Image
-                  src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/home/share.png"
-                  alt="Share"
-                  width={16}
-                  height={16}
-                />
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  aria-label="Share"
+                  onClick={handleShare}
+                  className="mt-1 flex h-8 w-8 items-center justify-center rounded-full border border-[#ece6dd] text-[#9b8a72] hover:text-[#5B3A1A]">
+                  <Image
+                    src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/home/share.png"
+                    alt="Share"
+                    width={16}
+                    height={16}
+                  />
+                </button>
+                {showCopied && (
+                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-[#5B3A1A] px-2 py-1 text-[10px] text-white">
+                    링크 복사됨
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="mt-6 h-px w-full bg-[#ece6dd]" />
