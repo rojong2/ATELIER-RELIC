@@ -166,7 +166,12 @@ export default function ProductDetail({ product }: Props) {
                 type="button"
                 aria-label="Share"
                 className="mt-1 h-8 w-8 rounded-full border border-[#ece6dd] text-[#9b8a72] hover:text-[#5B3A1A]">
-                <Image src="/share.png" alt="Share" width={16} height={16} />
+                <Image
+                  src="https://izwpcvdaakijsodjyppe.supabase.co/storage/v1/object/public/home/share.png"
+                  alt="Share"
+                  width={16}
+                  height={16}
+                />
               </button>
             </div>
 
