@@ -1,17 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
 
 export default function Header() {
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const cartItems = useCartStore((state) => state.items);
   const cartCount = cartItems.length;
   const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setIsLoggedIn(!!session);
+    };
+
+    checkAuth();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsLoggedIn(false);
+    router.push("/");
+    router.refresh();
+  };
 
   useEffect(() => {
     if (isProductDetail) {
@@ -75,7 +104,6 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* TODO: 로그인 시 join 버튼 안보이게 */}
           <div className="flex items-center gap-8 text-[13px]">
             <Link
               href="/cart"
@@ -90,12 +118,23 @@ export default function Header() {
             <Link href="/my" className="cursor-pointer hover:opacity-70">
               MY
             </Link>
-            <Link href="/join" className="cursor-pointer hover:opacity-70">
-              JOIN
-            </Link>
-            <Link href="/login" className="cursor-pointer hover:opacity-70">
-              LOGIN
-            </Link>
+            {!isLoggedIn && (
+              <Link href="/join" className="cursor-pointer hover:opacity-70">
+                JOIN
+              </Link>
+            )}
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="cursor-pointer hover:opacity-70">
+                LOGOUT
+              </button>
+            ) : (
+              <Link href="/login" className="cursor-pointer hover:opacity-70">
+                LOGIN
+              </Link>
+            )}
           </div>
         </div>
       </div>

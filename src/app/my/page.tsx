@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
+import { supabase } from "@/lib/supabase";
 import { useWishlistStore } from "@/store/wishlistStore";
 
 type Address = {
@@ -23,6 +25,8 @@ type Profile = {
 };
 
 export default function MyPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "profile" | "address" | "orders" | "wishlist"
   >("profile");
@@ -31,9 +35,9 @@ export default function MyPage() {
     useWishlistStore();
 
   const [profile, setProfile] = useState<Profile>({
-    name: "홍길동",
-    email: "example@email.com",
-    phone: "010-1234-5678",
+    name: "",
+    email: "",
+    phone: "",
   });
   const [showProfileForm, setShowProfileForm] = useState(false);
   const [profileForm, setProfileForm] = useState<Profile>({
@@ -42,17 +46,7 @@ export default function MyPage() {
     phone: "",
   });
 
-  const [addresses, setAddresses] = useState<Address[]>([
-    {
-      id: 1,
-      name: "홍길동",
-      phone: "010-1234-5678",
-      postcode: "12345",
-      address: "서울특별시 성동구 연무장길 12",
-      detailAddress: "1층",
-      isDefault: true,
-    },
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [addressForm, setAddressForm] = useState({
@@ -64,13 +58,92 @@ export default function MyPage() {
     isDefault: false,
   });
 
+  useEffect(() => {
+    const checkAuthAndFetchData = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
+
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        setProfile({
+          name: session.user.user_metadata?.name || "",
+          email: session.user.email || "",
+          phone: "",
+        });
+      } else if (userData) {
+        setProfile({
+          name: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+        });
+      }
+
+      const { data: addressData } = await supabase
+        .from("addresses")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("is_default", { ascending: false });
+
+      if (addressData) {
+        setAddresses(
+          addressData.map((addr) => ({
+            id: addr.id,
+            name: addr.recipient_name,
+            phone: addr.phone,
+            postcode: addr.postcode,
+            address: addr.address,
+            detailAddress: addr.detail_address || "",
+            isDefault: addr.is_default,
+          }))
+        );
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuthAndFetchData();
+  }, [router]);
+
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfileForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
+  const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) return;
+
+    const { error } = await supabase
+      .from("users")
+      .update({
+        name: profileForm.name,
+        phone: profileForm.phone,
+      })
+      .eq("id", session.user.id);
+
+    if (error) {
+      console.error("Error updating profile:", error);
+      alert("프로필 수정에 실패했습니다.");
+      return;
+    }
+
     setProfile(profileForm);
     setShowProfileForm(false);
   };
@@ -88,27 +161,75 @@ export default function MyPage() {
     }));
   };
 
-  const handleAddressSubmit = (e: React.FormEvent) => {
+  const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) return;
+
+    const addressData = {
+      user_id: session.user.id,
+      recipient_name: addressForm.name,
+      phone: addressForm.phone,
+      postcode: addressForm.postcode,
+      address: addressForm.address,
+      detail_address: addressForm.detailAddress,
+      is_default: addressForm.isDefault,
+    };
+
     if (editingId !== null) {
+      const { error } = await supabase
+        .from("addresses")
+        .update(addressData)
+        .eq("id", editingId);
+
+      if (error) {
+        console.error("Error updating address:", error);
+        alert("배송지 수정에 실패했습니다.");
+        return;
+      }
+
       setAddresses((prev) =>
         prev.map((addr) =>
           addr.id === editingId
             ? { ...addressForm, id: editingId }
             : addressForm.isDefault
               ? { ...addr, isDefault: false }
-              : addr,
-        ),
+              : addr
+        )
       );
       setEditingId(null);
     } else {
-      const newId = Math.max(0, ...addresses.map((a) => a.id)) + 1;
+      const { data, error } = await supabase
+        .from("addresses")
+        .insert(addressData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error adding address:", error);
+        alert("배송지 추가에 실패했습니다.");
+        return;
+      }
+
+      const newAddr: Address = {
+        id: data.id,
+        name: addressForm.name,
+        phone: addressForm.phone,
+        postcode: addressForm.postcode,
+        address: addressForm.address,
+        detailAddress: addressForm.detailAddress,
+        isDefault: addressForm.isDefault,
+      };
+
       setAddresses((prev) => {
         const updated = addressForm.isDefault
           ? prev.map((a) => ({ ...a, isDefault: false }))
           : prev;
-        return [...updated, { ...addressForm, id: newId }];
+        return [...updated, newAddr];
       });
     }
 
@@ -136,7 +257,15 @@ export default function MyPage() {
     setShowAddressForm(true);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
+    const { error } = await supabase.from("addresses").delete().eq("id", id);
+
+    if (error) {
+      console.error("Error deleting address:", error);
+      alert("배송지 삭제에 실패했습니다.");
+      return;
+    }
+
     setAddresses((prev) => prev.filter((a) => a.id !== id));
   };
 
@@ -146,9 +275,17 @@ export default function MyPage() {
         ? "border-b-2 border-[#5B3A1A] text-[#5B3A1A]"
         : "text-[#9b8a72] hover:text-[#5B3A1A]"
     }`;
-  {
-    /* TODO: 로그인 안되있으면 로그인 페이지로 이동*/
+
+  if (isLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-white">
+        <div className="text-[14px] tracking-[0.08em] text-[#9b8a72]">
+          로딩 중...
+        </div>
+      </main>
+    );
   }
+
   return (
     <main className="flex min-h-screen justify-center bg-white px-6 py-24 text-[#5B3A1A] pt-70">
       <div className="w-full max-w-[800px]">
