@@ -17,6 +17,7 @@ export default function Header() {
   const cartCount = cartItems.length;
   const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
   const { fetchWishlist, setUserId, clearWishlist } = useWishlistStore();
+  const { fetchCart, clearCart } = useCartStore();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -26,7 +27,10 @@ export default function Header() {
       setIsLoggedIn(!!session);
       if (session?.user) {
         setUserId(session.user.id);
-        await fetchWishlist(session.user.id);
+        await Promise.all([
+          fetchWishlist(session.user.id),
+          fetchCart(session.user.id),
+        ]);
       }
     };
 
@@ -38,19 +42,24 @@ export default function Header() {
       setIsLoggedIn(!!session);
       if (session?.user) {
         setUserId(session.user.id);
-        await fetchWishlist(session.user.id);
+        await Promise.all([
+          fetchWishlist(session.user.id),
+          fetchCart(session.user.id),
+        ]);
       } else {
         clearWishlist();
+        clearCart({ deleteFromDb: false });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchWishlist, setUserId, clearWishlist]);
+  }, [fetchWishlist, fetchCart, setUserId, clearWishlist, clearCart]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
     clearWishlist();
+    clearCart({ deleteFromDb: false });
     router.push("/");
     router.refresh();
   };
