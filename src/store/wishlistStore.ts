@@ -55,7 +55,7 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
         const items: WishlistItem[] = data
           .filter((item) => item.products)
           .map((item) => {
-            const product = item.products as {
+            const product = item.products as unknown as {
               id: number;
               name: string;
               price: number;
