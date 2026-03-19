@@ -346,7 +346,7 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
--- 위시리스트 추가 시 like_count 증가 함수
+-- 위시리스트 추가 시 like_count 증가 함수 (SECURITY DEFINER로 RLS 우회)
 CREATE OR REPLACE FUNCTION increment_product_like_count()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -355,9 +355,9 @@ BEGIN
   WHERE id = NEW.product_id;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 위시리스트 삭제 시 like_count 감소 함수
+-- 위시리스트 삭제 시 like_count 감소 함수 (SECURITY DEFINER로 RLS 우회)
 CREATE OR REPLACE FUNCTION decrement_product_like_count()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -366,7 +366,7 @@ BEGIN
   WHERE id = OLD.product_id;
   RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE TRIGGER on_wishlist_insert
   AFTER INSERT ON wishlist_items

@@ -14,7 +14,7 @@ SET like_count = (
   WHERE wishlist_items.product_id = products.id
 );
 
--- 3. 위시리스트 추가 시 like_count 증가 함수
+-- 3. 위시리스트 추가 시 like_count 증가 함수 (SECURITY DEFINER로 RLS 우회)
 CREATE OR REPLACE FUNCTION increment_product_like_count()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -23,9 +23,9 @@ BEGIN
   WHERE id = NEW.product_id;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 4. 위시리스트 삭제 시 like_count 감소 함수
+-- 4. 위시리스트 삭제 시 like_count 감소 함수 (SECURITY DEFINER로 RLS 우회)
 CREATE OR REPLACE FUNCTION decrement_product_like_count()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -34,7 +34,7 @@ BEGIN
   WHERE id = OLD.product_id;
   RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 5. 기존 트리거 삭제 (있을 경우)
 DROP TRIGGER IF EXISTS on_wishlist_insert ON wishlist_items;
