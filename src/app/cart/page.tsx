@@ -2,11 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useCartStore } from "@/store/cartStore";
 
 export default function CartPage() {
+  const router = useRouter();
   const {
     items: cartItems,
     removeItem,
@@ -222,7 +224,9 @@ export default function CartPage() {
               <div className="mt-10 flex justify-center">
                 <button
                   type="button"
-                  className="h-12 w-[280px] rounded-full bg-[#b9b0a2] text-[14px] tracking-[0.18em] text-white transition hover:bg-[#a79d8d]">
+                  onClick={() => router.push("/checkout")}
+                  disabled={selectedItems.length === 0}
+                  className="h-12 w-[280px] rounded-full bg-[#b9b0a2] text-[14px] tracking-[0.18em] text-white transition hover:bg-[#a79d8d] disabled:cursor-not-allowed disabled:bg-[#d0c6b9]">
                   주문하기
                 </button>
               </div>

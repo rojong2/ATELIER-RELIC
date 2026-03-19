@@ -100,9 +100,14 @@ CREATE TYPE payment_method AS ENUM (
 
 CREATE TABLE orders (
   id SERIAL PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   order_number VARCHAR(50) UNIQUE NOT NULL,
   status order_status DEFAULT 'pending',
+  
+  -- 주문자 정보 (비회원 주문용)
+  orderer_name VARCHAR(100) NOT NULL,
+  orderer_phone VARCHAR(20) NOT NULL,
+  orderer_email VARCHAR(255) NOT NULL,
   
   -- 배송 정보
   recipient_name VARCHAR(100) NOT NULL,
@@ -214,12 +219,15 @@ CREATE POLICY "Users can insert own wishlist items" ON wishlist_items
 CREATE POLICY "Users can delete own wishlist items" ON wishlist_items
   FOR DELETE USING (auth.uid() = user_id);
 
--- Orders: 본인 주문만 조회
+-- Orders: 본인 주문만 조회 (회원), 비회원은 주문번호로 조회
 CREATE POLICY "Users can view own orders" ON orders
-  FOR SELECT USING (auth.uid() = user_id);
+  FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
 
 CREATE POLICY "Users can insert own orders" ON orders
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+  FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+CREATE POLICY "Anyone can insert guest orders" ON orders
+  FOR INSERT WITH CHECK (user_id IS NULL);
 
 -- Order Items: 본인 주문 상품만 조회
 CREATE POLICY "Users can view own order items" ON order_items
@@ -227,7 +235,16 @@ CREATE POLICY "Users can view own order items" ON order_items
     EXISTS (
       SELECT 1 FROM orders 
       WHERE orders.id = order_items.order_id 
-      AND orders.user_id = auth.uid()
+      AND (orders.user_id = auth.uid() OR orders.user_id IS NULL)
+    )
+  );
+
+CREATE POLICY "Users can insert order items" ON order_items
+  FOR INSERT WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM orders 
+      WHERE orders.id = order_items.order_id 
+      AND (orders.user_id = auth.uid() OR orders.user_id IS NULL)
     )
   );
 

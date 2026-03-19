@@ -24,6 +24,39 @@ type Profile = {
   phone: string;
 };
 
+type OrderItem = {
+  id: number;
+  product_name: string;
+  product_price: number;
+  quantity: number;
+  subtotal: number;
+};
+
+type Order = {
+  id: number;
+  order_number: string;
+  status: string;
+  recipient_name: string;
+  recipient_phone: string;
+  address: string;
+  detail_address: string | null;
+  total_product_price: number;
+  delivery_fee: number;
+  total_price: number;
+  ordered_at: string;
+  order_items: OrderItem[];
+};
+
+const ORDER_STATUS_MAP: Record<string, { label: string; color: string }> = {
+  pending: { label: "결제대기", color: "bg-yellow-100 text-yellow-800" },
+  paid: { label: "결제완료", color: "bg-blue-100 text-blue-800" },
+  preparing: { label: "상품준비중", color: "bg-indigo-100 text-indigo-800" },
+  shipping: { label: "배송중", color: "bg-purple-100 text-purple-800" },
+  delivered: { label: "배송완료", color: "bg-green-100 text-green-800" },
+  cancelled: { label: "주문취소", color: "bg-red-100 text-red-800" },
+  refunded: { label: "환불완료", color: "bg-gray-100 text-gray-800" },
+};
+
 export default function MyPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -57,6 +90,8 @@ export default function MyPage() {
     detailAddress: "",
     isDefault: false,
   });
+
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     const checkAuthAndFetchData = async () => {
@@ -108,6 +143,23 @@ export default function MyPage() {
             isDefault: addr.is_default,
           }))
         );
+      }
+
+      const { data: ordersData, error: ordersError } = await supabase
+        .from("orders")
+        .select(
+          `
+          *,
+          order_items (*)
+        `
+        )
+        .eq("user_id", session.user.id)
+        .order("ordered_at", { ascending: false });
+
+      if (ordersError) {
+        console.error("Error fetching orders:", ordersError);
+      } else if (ordersData) {
+        setOrders(ordersData as Order[]);
       }
 
       setIsLoading(false);
@@ -642,9 +694,78 @@ export default function MyPage() {
 
         {activeTab === "orders" && (
           <section>
-            <div className="py-16 text-center text-[13px] tracking-[0.08em] text-[#9b8a72]">
-              주문 내역이 없습니다.
-            </div>
+            {orders.length === 0 ? (
+              <div className="py-16 text-center text-[13px] tracking-[0.08em] text-[#9b8a72]">
+                주문 내역이 없습니다.
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {orders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="rounded border border-[#ece6dd] p-6">
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[#ece6dd] pb-4">
+                      <div>
+                        <p className="text-[14px] font-semibold tracking-[0.08em] text-[#5B3A1A]">
+                          {order.order_number}
+                        </p>
+                        <p className="mt-1 text-[11px] tracking-[0.08em] text-[#9b8a72]">
+                          {new Date(order.ordered_at).toLocaleDateString(
+                            "ko-KR",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded px-3 py-1 text-[11px] font-medium ${
+                          ORDER_STATUS_MAP[order.status]?.color ||
+                          "bg-gray-100 text-gray-800"
+                        }`}>
+                        {ORDER_STATUS_MAP[order.status]?.label || order.status}
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      {order.order_items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-between text-[13px]">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[#5B3A1A]">
+                              {item.product_name}
+                            </span>
+                            <span className="text-[#9b8a72]">
+                              x {item.quantity}
+                            </span>
+                          </div>
+                          <span className="text-[#5B3A1A]">
+                            {item.subtotal.toLocaleString("ko-KR")}원
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-4 border-t border-[#ece6dd] pt-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[12px] text-[#9b8a72]">
+                          배송지: {order.address}{" "}
+                          {order.detail_address && order.detail_address}
+                        </span>
+                        <span className="text-[14px] font-semibold text-[#5B3A1A]">
+                          총 {order.total_price.toLocaleString("ko-KR")}원
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
 

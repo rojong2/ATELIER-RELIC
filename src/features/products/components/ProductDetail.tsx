@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { type Product, formatPrice } from "@/lib/supabase";
@@ -27,6 +28,7 @@ export default function ProductDetail({ product }: Props) {
   const [showCartModal, setShowCartModal] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
 
+  const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const { items: wishlistItems, toggleItem } = useWishlistStore();
   const isLiked = wishlistItems.some((item) => item.id === product.id);
@@ -78,6 +80,18 @@ export default function ProductDetail({ product }: Props) {
       });
     }
     setShowCartModal(true);
+  };
+
+  const handleBuyNow = () => {
+    for (let i = 0; i < qty; i++) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: unitPrice,
+        image: product.image_url,
+      });
+    }
+    router.push("/checkout");
   };
 
   const tabClass = (key: TabKey) =>
@@ -136,7 +150,6 @@ export default function ProductDetail({ product }: Props) {
   return (
     <main className="flex items-center justify-center min-h-screen bg-white pb-32 pt-10 text-[#5B3A1A]">
       <section className="mx-auto w-full max-w-8xl !px-50 pt-20 sm:px-6 lg:px-12">
-        {/* Breadcrumbs */}
         <nav className="mb-8 text-[15px] tracking-[0.12em] text-[#9b8a72] font-bold">
           <ol className="flex flex-wrap items-center gap-2">
             {crumb.map((c, idx) => (
@@ -150,7 +163,6 @@ export default function ProductDetail({ product }: Props) {
           </ol>
         </nav>
 
-        {/* Top */}
         <div className="mx-auto grid gap-10 w-full md:grid-cols-[minmax(0,1fr)_550px] md:items-start pt-10">
           <div className="relative mx-auto h-[490px] w-full max-w-[610px] overflow-hidden md:ml-auto md:mr-0">
             <Image
@@ -204,7 +216,7 @@ export default function ProductDetail({ product }: Props) {
             {deliveryMethod === "택배" && (
               <div className="mt-8 text-[13px] tracking-[0.12em] text-[#7b674f]">
                 <span className="font-semibold text-[#5B3A1A]">배송비</span>{" "}
-                무료 (50,000원 이상 무료배송)
+                무료 (0원 이상 무료배송)
               </div>
             )}
 
@@ -257,7 +269,7 @@ export default function ProductDetail({ product }: Props) {
                 <button
                   type="button"
                   className="h-10 border border-[#ece6dd] bg-white text-[13px] tracking-[0.12em] text-[#7b674f] hover:bg-[#faf7f2]">
-                  {/* TODO: 위치확인 버튼 회원정보의 배송지 정보에서 가져오기 */}
+                  {/* TODO: 위치확인 클릭 시 주소 팝업 띄우기 */}
                   위치확인
                 </button>
               )}
@@ -303,9 +315,9 @@ export default function ProductDetail({ product }: Props) {
             </div>
 
             <div className="mt-8 grid grid-cols-3 gap-3 pt-11">
-              {/* TODO: 구매하기 버튼 클릭 시 로그인 확인 후 로그인 안되있으면 로그인 페이지로 이동 되있으면 구매 페이지로 이동*/}
               <button
                 type="button"
+                onClick={handleBuyNow}
                 className="h-11 rounded-full bg-[#b9b0a2] text-[13px] tracking-[0.18em] text-white hover:bg-[#a79d8d]">
                 구매하기
               </button>
@@ -360,7 +372,7 @@ export default function ProductDetail({ product }: Props) {
         </div>
 
         <div
-          className={`sticky top-0 z-40 border-y border-[#ece6dd] bg-white/95 backdrop-blur transition-opacity ${
+          className={`flex justify-center sticky top-0 z-40 border-y border-[#ece6dd] bg-white/95 backdrop-blur transition-opacity ${
             showStickyTabs ? "opacity-100" : "pointer-events-none opacity-0"
           }`}>
           <div className="mx-auto flex max-w-4xl items-center justify-center gap-10 px-4 py-5 text-[12px] tracking-[0.12em] text-[#9b8a72]">
@@ -434,6 +446,8 @@ export default function ProductDetail({ product }: Props) {
                 </button>
               </div>
 
+              <div className="h-4" aria-hidden="true" />
+
               <div className="h-px w-full bg-[#ece6dd]" />
 
               <div className="py-24 text-center text-[12px] tracking-[0.12em] text-[#bfb6aa]">
@@ -469,6 +483,8 @@ export default function ProductDetail({ product }: Props) {
                   </button>
                 </div>
               </div>
+
+              <div className="h-4" aria-hidden="true" />
 
               <div className="h-px w-full bg-[#ece6dd]" />
 
