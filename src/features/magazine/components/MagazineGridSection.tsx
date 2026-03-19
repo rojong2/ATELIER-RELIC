@@ -61,7 +61,7 @@ export default function MagazineGridSection({ initialItems }: Props) {
   return (
     <section className="flex min-h-screen w-full items-center justify-center bg-white px-6 pb-24 pt-10">
       <div className="mx-auto w-full max-w-8xl">
-        <div className="grid justify-items-center gap-x-30 gap-y-20 px-50 md:grid-cols-3">
+        <div className="grid justify-items-center gap-x-30 gap-y-20 px-90 md:grid-cols-3">
           {items.map((card) => (
             <article
               key={card.id}
