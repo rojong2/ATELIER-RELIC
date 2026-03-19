@@ -81,10 +81,10 @@ export default function MyPageClient({
     e.preventDefault();
 
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) return;
+    if (!user) return;
 
     const { error } = await supabase
       .from("users")
@@ -92,7 +92,7 @@ export default function MyPageClient({
         name: profileForm.name,
         phone: profileForm.phone,
       })
-      .eq("id", session.user.id);
+      .eq("id", user.id);
 
     if (error) {
       console.error("Error updating profile:", error);
@@ -121,13 +121,13 @@ export default function MyPageClient({
     e.preventDefault();
 
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) return;
+    if (!user) return;
 
     const addressData = {
-      user_id: session.user.id,
+      user_id: user.id,
       recipient_name: addressForm.name,
       phone: addressForm.phone,
       postcode: addressForm.postcode,

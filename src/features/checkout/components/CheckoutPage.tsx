@@ -53,20 +53,20 @@ export default function CheckoutPage() {
     const fetchUserData = async () => {
       try {
         const {
-          data: { session },
-        } = await supabase.auth.getSession();
+          data: { user },
+        } = await supabase.auth.getUser();
 
-        if (session?.user) {
-          setUserId(session.user.id);
+        if (user) {
+          setUserId(user.id);
 
-          const profile = await getUserProfile(session.user.id);
+          const profile = await getUserProfile(user.id);
           if (profile) {
             setOrdererName(profile.name || "");
             setOrdererPhone(profile.phone || "");
             setOrdererEmail(profile.email || "");
           }
 
-          const defaultAddress = await getDefaultAddress(session.user.id);
+          const defaultAddress = await getDefaultAddress(user.id);
           if (defaultAddress) {
             setRecipientName(defaultAddress.recipient_name || "");
             setRecipientPhone(defaultAddress.phone || "");

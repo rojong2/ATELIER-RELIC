@@ -104,24 +104,22 @@ export async function getUserProfile(userId: string) {
 }
 
 export async function getDefaultAddress(userId: string) {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("addresses")
     .select("*")
     .eq("user_id", userId)
     .eq("is_default", true)
-    .single();
+    .maybeSingle();
 
-  if (error) {
-    const { data: firstAddress } = await supabase
-      .from("addresses")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single();
+  if (data) return data;
 
-    return firstAddress || null;
-  }
+  const { data: firstAddress } = await supabase
+    .from("addresses")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  return data;
+  return firstAddress ?? null;
 }

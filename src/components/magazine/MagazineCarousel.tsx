@@ -11,10 +11,7 @@ type Props = {
   initialItems?: Magazine[];
 };
 
-export default function MagazineCarousel({
-  perPage = 3,
-  initialItems,
-}: Props) {
+export default function MagazineCarousel({ perPage = 3, initialItems }: Props) {
   const [items, setItems] = useState<Magazine[]>(initialItems ?? []);
   const [loading, setLoading] = useState(!initialItems);
 

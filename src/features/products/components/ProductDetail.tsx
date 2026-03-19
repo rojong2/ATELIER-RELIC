@@ -45,12 +45,12 @@ export default function ProductDetail({ product }: Props) {
   useEffect(() => {
     const checkAuthAndFetchWishlist = async () => {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
         setIsLoggedIn(true);
-        setUserId(session.user.id);
-        await fetchWishlist(session.user.id);
+        setUserId(user.id);
+        await fetchWishlist(user.id);
       } else {
         setIsLoggedIn(false);
         clearWishlist();
@@ -88,10 +88,10 @@ export default function ProductDetail({ product }: Props) {
 
   const handleToggleLike = async () => {
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       alert("로그인이 필요한 서비스입니다.");
       router.push("/login");
       return;

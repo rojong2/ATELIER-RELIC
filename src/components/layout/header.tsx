@@ -21,14 +21,14 @@ export default function Header() {
   useEffect(() => {
     const checkAuth = async () => {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
-      if (session?.user) {
-        setUserId(session.user.id);
+        data: { user },
+      } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+      if (user) {
+        setUserId(user.id);
         await Promise.all([
-          fetchWishlist(session.user.id),
-          fetchCart(session.user.id),
+          fetchWishlist(user.id),
+          fetchCart(user.id),
         ]);
       }
     };
