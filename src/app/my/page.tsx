@@ -64,8 +64,12 @@ export default function MyPage() {
     "profile" | "address" | "orders" | "wishlist"
   >("profile");
 
-  const { items: wishlistItems, removeItem: removeWishlistItem } =
-    useWishlistStore();
+  const {
+    items: wishlistItems,
+    removeItem: removeWishlistItem,
+    fetchWishlist,
+    setUserId,
+  } = useWishlistStore();
 
   const [profile, setProfile] = useState<Profile>({
     name: "",
@@ -103,6 +107,9 @@ export default function MyPage() {
         router.push("/login");
         return;
       }
+
+      setUserId(session.user.id);
+      await fetchWishlist(session.user.id);
 
       const { data: userData, error: userError } = await supabase
         .from("users")
@@ -166,7 +173,7 @@ export default function MyPage() {
     };
 
     checkAuthAndFetchData();
-  }, [router]);
+  }, [router, fetchWishlist, setUserId]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

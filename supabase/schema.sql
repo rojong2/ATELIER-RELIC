@@ -38,6 +38,7 @@ CREATE TABLE products (
   image_url VARCHAR(500) NOT NULL,
   description TEXT,
   stock INTEGER DEFAULT 0,
+  like_count INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -159,6 +160,7 @@ CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_order_number ON orders(order_number);
 CREATE INDEX idx_order_items_order_id ON order_items(order_id);
 CREATE INDEX idx_products_is_active ON products(is_active);
+CREATE INDEX idx_products_like_count ON products(like_count DESC);
 CREATE INDEX idx_magazines_is_published ON magazines(is_published);
 
 -- =============================================
@@ -343,3 +345,33 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- 위시리스트 추가 시 like_count 증가 함수
+CREATE OR REPLACE FUNCTION increment_product_like_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE products 
+  SET like_count = like_count + 1 
+  WHERE id = NEW.product_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 위시리스트 삭제 시 like_count 감소 함수
+CREATE OR REPLACE FUNCTION decrement_product_like_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE products 
+  SET like_count = GREATEST(0, like_count - 1) 
+  WHERE id = OLD.product_id;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER on_wishlist_insert
+  AFTER INSERT ON wishlist_items
+  FOR EACH ROW EXECUTE FUNCTION increment_product_like_count();
+
+CREATE TRIGGER on_wishlist_delete
+  AFTER DELETE ON wishlist_items
+  FOR EACH ROW EXECUTE FUNCTION decrement_product_like_count();

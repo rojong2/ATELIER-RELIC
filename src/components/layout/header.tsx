@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 export default function Header() {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function Header() {
   const cartItems = useCartStore((state) => state.items);
   const cartCount = cartItems.length;
   const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
+  const { fetchWishlist, setUserId, clearWishlist } = useWishlistStore();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -22,22 +24,33 @@ export default function Header() {
         data: { session },
       } = await supabase.auth.getSession();
       setIsLoggedIn(!!session);
+      if (session?.user) {
+        setUserId(session.user.id);
+        await fetchWishlist(session.user.id);
+      }
     };
 
     checkAuth();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setIsLoggedIn(!!session);
+      if (session?.user) {
+        setUserId(session.user.id);
+        await fetchWishlist(session.user.id);
+      } else {
+        clearWishlist();
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [fetchWishlist, setUserId, clearWishlist]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
+    clearWishlist();
     router.push("/");
     router.refresh();
   };

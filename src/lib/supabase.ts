@@ -43,6 +43,7 @@ export type Product = {
   image_url: string;
   description: string | null;
   stock: number;
+  like_count: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { type Product, formatPrice } from "@/lib/supabase";
+import { supabase, type Product, formatPrice } from "@/lib/supabase";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 
@@ -27,19 +27,85 @@ export default function ProductDetail({ product }: Props) {
   );
   const [showCartModal, setShowCartModal] = useState(false);
   const [showCopied, setShowCopied] = useState(false);
+  const [likeCount, setLikeCount] = useState(product.like_count || 0);
 
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
-  const { items: wishlistItems, toggleItem } = useWishlistStore();
-  const isLiked = wishlistItems.some((item) => item.id === product.id);
+  const {
+    items: wishlistItems,
+    toggleItem,
+    fetchWishlist,
+    setUserId,
+    clearWishlist,
+  } = useWishlistStore();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLiked = isLoggedIn && wishlistItems.some((item) => item.id === product.id);
 
-  const handleToggleLike = () => {
-    toggleItem({
+  useEffect(() => {
+    const checkAuthAndFetchWishlist = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user) {
+        setIsLoggedIn(true);
+        setUserId(session.user.id);
+        await fetchWishlist(session.user.id);
+      } else {
+        setIsLoggedIn(false);
+        clearWishlist();
+      }
+    };
+    checkAuthAndFetchWishlist();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setIsLoggedIn(true);
+        setUserId(session.user.id);
+        await fetchWishlist(session.user.id);
+      } else {
+        setIsLoggedIn(false);
+        clearWishlist();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [fetchWishlist, setUserId, clearWishlist]);
+
+  const fetchLikeCount = async () => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("like_count")
+      .eq("id", product.id)
+      .single();
+
+    if (!error && data) {
+      setLikeCount(data.like_count || 0);
+    }
+  };
+
+  const handleToggleLike = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      alert("로그인이 필요한 서비스입니다.");
+      router.push("/login");
+      return;
+    }
+
+    await toggleItem({
       id: product.id,
       name: product.name,
       price: formatPrice(product.price),
       image: product.image_url,
     });
+
+    setTimeout(() => {
+      fetchLikeCount();
+    }, 300);
   };
 
   const handleShare = async () => {
@@ -337,7 +403,7 @@ export default function ProductDetail({ product }: Props) {
                 }`}>
                 <span aria-hidden>{isLiked ? "♥" : "♡"}</span>
                 <span className={isLiked ? "text-white" : "text-[#7b674f]"}>
-                  {isLiked ? 1 : 0}
+                  {likeCount}
                 </span>
               </button>
             </div>
