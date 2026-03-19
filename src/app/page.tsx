@@ -3,8 +3,14 @@ import Link from "next/link";
 
 import MagazineCarousel from "@/components/magazine/MagazineCarousel";
 import ProductGridSection from "@/features/products/components/ProductGridSection";
+import { getProducts } from "@/features/products/services/productService";
+import { getMagazines } from "@/features/magazine/services/magazineService";
 
-export default function Home() {
+export default async function Home() {
+  const [products, magazines] = await Promise.all([
+    getProducts(),
+    getMagazines(),
+  ]);
   return (
     <main className="relative w-full">
       <div className="relative h-screen w-full">
@@ -54,7 +60,7 @@ export default function Home() {
         </div>
       </section>
 
-      <ProductGridSection />
+      <ProductGridSection initialProducts={products} />
 
       {/* 매거진 섹션 */}
       <section className="flex h-[250px] w-full items-center justify-center">
@@ -67,7 +73,7 @@ export default function Home() {
       </section>
 
       <section className="flex w-full bg-white pb-24 items-center justify-center">
-        <MagazineCarousel />
+        <MagazineCarousel initialItems={magazines} />
       </section>
     </main>
   );

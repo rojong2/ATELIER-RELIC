@@ -13,6 +13,7 @@ type WishlistState = {
   isLoading: boolean;
   userId: string | null;
   setUserId: (userId: string | null) => void;
+  setItems: (items: WishlistItem[]) => void;
   fetchWishlist: (userId: string) => Promise<void>;
   addItem: (item: WishlistItem) => Promise<void>;
   removeItem: (id: number) => Promise<void>;
@@ -27,6 +28,7 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
   userId: null,
 
   setUserId: (userId) => set({ userId }),
+  setItems: (items) => set({ items }),
 
   fetchWishlist: async (userId) => {
     set({ isLoading: true });
@@ -42,7 +44,7 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
             price,
             image_url
           )
-        `
+        `,
         )
         .eq("user_id", userId);
 

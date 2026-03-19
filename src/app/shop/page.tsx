@@ -1,6 +1,8 @@
 import ProductGridSection from "@/features/products/components/ProductGridSection";
+import { getProducts } from "@/features/products/services/productService";
 
-export default function SHOP() {
+export default async function SHOP() {
+  const products = await getProducts();
   return (
     <main>
       <section className="flex h-[300px] w-full items-center justify-center">
@@ -14,7 +16,10 @@ export default function SHOP() {
           </p>
         </div>
       </section>
-      <ProductGridSection showShopNowButton={false} />
+      <ProductGridSection
+        showShopNowButton={false}
+        initialProducts={products}
+      />
       <div className="h-[70px]"></div>
     </main>
   );

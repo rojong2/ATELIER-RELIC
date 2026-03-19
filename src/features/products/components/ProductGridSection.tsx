@@ -8,14 +8,21 @@ import { supabase, type Product, formatPrice } from "@/lib/supabase";
 
 type Props = {
   showShopNowButton?: boolean;
+  initialProducts?: Product[];
 };
 
-export default function ProductGridSection({ showShopNowButton = true }: Props) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ProductGridSection({
+  showShopNowButton = true,
+  initialProducts,
+}: Props) {
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
+  const [loading, setLoading] = useState(!initialProducts);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
+  const fetchProducts = async () => {
+    setLoading(true);
+    setFetchError(null);
+    try {
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -25,14 +32,24 @@ export default function ProductGridSection({ showShopNowButton = true }: Props) 
 
       if (error) {
         console.error("Error fetching products:", error);
+        setFetchError(error.message);
       } else {
         setProducts(data || []);
       }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "연결에 실패했습니다.";
+      console.error("Error fetching products:", err);
+      setFetchError(message);
+    } finally {
       setLoading(false);
-    };
+    }
+  };
 
+  useEffect(() => {
+    if (initialProducts) return;
     fetchProducts();
-  }, []);
+  }, [initialProducts]);
 
   if (loading) {
     return (
@@ -40,6 +57,24 @@ export default function ProductGridSection({ showShopNowButton = true }: Props) 
         <div className="text-[14px] tracking-[0.08em] text-[#9b8a72]">
           로딩 중...
         </div>
+      </section>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <section className="flex min-h-screen w-full flex-col items-center justify-center gap-6 bg-white">
+        <p className="text-[14px] tracking-[0.08em] text-[#9b8a72]">
+          {fetchError === "Request timeout"
+            ? "연결이 느립니다. Supabase 프로젝트가 일시 중지되었을 수 있습니다."
+            : fetchError}
+        </p>
+        <button
+          type="button"
+          onClick={() => fetchProducts()}
+          className="rounded-full border border-[#5B3A1A] px-8 py-2 text-[11px] tracking-[0.24em] text-[#5B3A1A] transition-colors hover:bg-[#5B3A1A] hover:text-white">
+          다시 시도
+        </button>
       </section>
     );
   }

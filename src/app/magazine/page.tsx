@@ -1,6 +1,8 @@
 import MagazineGridSection from "@/features/magazine/components/MagazineGridSection";
+import { getMagazinesByIdOrder } from "@/features/magazine/services/magazineService";
 
-export default function MagazinePage() {
+export default async function MagazinePage() {
+  const magazines = await getMagazinesByIdOrder();
   return (
     <main className="w-full bg-white">
       <section className="flex h-[300px] w-full items-center justify-center pt-50">
@@ -12,7 +14,7 @@ export default function MagazinePage() {
         </div>
       </section>
 
-      <MagazineGridSection />
+      <MagazineGridSection initialItems={magazines} />
     </main>
   );
 }

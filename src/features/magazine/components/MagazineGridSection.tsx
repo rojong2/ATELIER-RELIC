@@ -5,29 +5,38 @@ import { useEffect, useState } from "react";
 
 import { supabase, type Magazine } from "@/lib/supabase";
 
-export default function MagazineGridSection() {
-  const [items, setItems] = useState<Magazine[]>([]);
-  const [loading, setLoading] = useState(true);
+type Props = {
+  initialItems?: Magazine[];
+};
+
+export default function MagazineGridSection({ initialItems }: Props) {
+  const [items, setItems] = useState<Magazine[]>(initialItems ?? []);
+  const [loading, setLoading] = useState(!initialItems);
 
   useEffect(() => {
+    if (initialItems) return;
     const fetchMagazines = async () => {
-      const { data, error } = await supabase
-        .from("magazines")
-        .select("*")
-        .eq("is_published", true)
-        .order("id", { ascending: true })
-        .limit(9);
+      try {
+        const { data, error } = await supabase
+          .from("magazines")
+          .select("*")
+          .eq("is_published", true)
+          .order("id", { ascending: true })
+          .limit(9);
 
-      if (error) {
-        console.error("Error fetching magazines:", error);
-      } else {
-        setItems(data || []);
+        if (error) {
+          console.error("Error fetching magazines:", error);
+        } else {
+          setItems(data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching magazines:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-
     fetchMagazines();
-  }, []);
+  }, [initialItems]);
 
   if (loading) {
     return (

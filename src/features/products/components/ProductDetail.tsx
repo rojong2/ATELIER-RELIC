@@ -39,7 +39,8 @@ export default function ProductDetail({ product }: Props) {
     clearWishlist,
   } = useWishlistStore();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const isLiked = isLoggedIn && wishlistItems.some((item) => item.id === product.id);
+  const isLiked =
+    isLoggedIn && wishlistItems.some((item) => item.id === product.id);
 
   useEffect(() => {
     const checkAuthAndFetchWishlist = async () => {

@@ -8,31 +8,40 @@ import { supabase, type Magazine } from "@/lib/supabase";
 
 type Props = {
   perPage?: number;
+  initialItems?: Magazine[];
 };
 
-export default function MagazineCarousel({ perPage = 3 }: Props) {
-  const [items, setItems] = useState<Magazine[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function MagazineCarousel({
+  perPage = 3,
+  initialItems,
+}: Props) {
+  const [items, setItems] = useState<Magazine[]>(initialItems ?? []);
+  const [loading, setLoading] = useState(!initialItems);
 
   useEffect(() => {
+    if (initialItems) return;
     const fetchMagazines = async () => {
-      const { data, error } = await supabase
-        .from("magazines")
-        .select("*")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false })
-        .limit(9);
+      try {
+        const { data, error } = await supabase
+          .from("magazines")
+          .select("*")
+          .eq("is_published", true)
+          .order("published_at", { ascending: false })
+          .limit(9);
 
-      if (error) {
-        console.error("Error fetching magazines:", error);
-      } else {
-        setItems(data || []);
+        if (error) {
+          console.error("Error fetching magazines:", error);
+        } else {
+          setItems(data || []);
+        }
+      } catch (err) {
+        console.error("Error fetching magazines:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-
     fetchMagazines();
-  }, []);
+  }, [initialItems]);
 
   const pages = useMemo(() => {
     const out: Magazine[][] = [];
