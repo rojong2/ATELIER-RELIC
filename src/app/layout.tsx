@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Caudex } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 const caudex = Caudex({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${caudex.className} min-h-screen bg-gray-500 text-white`}>
+        <Analytics />
         <div className="flex min-h-screen flex-col">
           <Header />
           <main className="flex-1 w-full">{children}</main>
