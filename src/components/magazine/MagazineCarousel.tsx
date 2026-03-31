@@ -79,14 +79,14 @@ export default function MagazineCarousel({ perPage = 3, initialItems }: Props) {
   }
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full min-w-0 overflow-x-clip">
       <div className="relative overflow-hidden">
         <div
           className="flex w-full transition-transform duration-500 ease-out"
           style={{ transform: `translateX(-${page * 100}%)` }}>
           {pages.map((cards, idx) => (
-            <div key={idx} className="w-full shrink-0 px-60">
-              <div className="mx-auto grid w-full max-w-8xl gap-10 md:grid-cols-3">
+            <div key={idx} className="w-full shrink-0 px-4 sm:px-8 md:px-12">
+              <div className="mx-auto grid w-full max-w-8xl grid-cols-1 gap-10 md:grid-cols-3">
                 {cards.map((card) => (
                   <article
                     key={card.id}

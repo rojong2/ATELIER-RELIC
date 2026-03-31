@@ -215,8 +215,8 @@ export default function ProductDetail({ product }: Props) {
   };
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-white pb-32 pt-10 text-[#5B3A1A]">
-      <section className="mx-auto w-full max-w-8xl !px-110 pt-20 sm:px-6 lg:px-12">
+    <main className="flex min-h-screen min-w-0 items-center justify-center overflow-x-clip bg-white pb-32 pt-10 text-[#5B3A1A]">
+      <section className="mx-auto w-full max-w-8xl px-4 pt-20 sm:px-6 lg:px-12">
         <nav className="mb-8 text-[15px] tracking-[0.12em] text-[#9b8a72] font-bold">
           <ol className="flex flex-wrap items-center gap-2">
             {crumb.map((c, idx) => (

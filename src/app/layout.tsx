@@ -26,9 +26,9 @@ export default function RootLayout({
         className={`${caudex.className} min-h-screen bg-gray-500 text-white`}>
         <Analytics />
         <SpeedInsights />
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip">
           <Header />
-          <main className="flex-1 w-full">{children}</main>
+          <main className="min-w-0 flex-1 overflow-x-clip">{children}</main>
           <Footer />
         </div>
       </body>

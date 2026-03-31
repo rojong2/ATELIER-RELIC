@@ -1,8 +1,8 @@
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#513838] py-16 text-center text-white">
-      <div className="mx-auto flex w-full flex-col items-center gap-8">
-        <div className="mx-auto grid w-full max-w-4xl grid-cols-3 justify-items-center text-xs tracking-[0.15em]">
+    <footer className="w-full min-w-0 overflow-x-clip bg-[#513838] py-16 text-center text-white">
+      <div className="mx-auto flex w-full min-w-0 flex-col items-center gap-8 px-4 sm:px-6">
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-10 text-xs tracking-[0.15em] sm:grid-cols-3 sm:gap-8 sm:justify-items-center">
           <div className="space-y-3 text-center">
             <h3 className="text-[11px] font-semibold tracking-[0.18em]">
               ADDRESS
