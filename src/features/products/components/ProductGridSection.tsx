@@ -2,18 +2,31 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { supabase, type Product, formatPrice } from "@/lib/supabase";
 
 type Props = {
   showShopNowButton?: boolean;
   initialProducts?: Product[];
+  /** 홈에서만: 뷰포트가 모바일일 때 무작위 3개만 노출 */
+  homeMobileRandomThree?: boolean;
 };
+
+function takeRandomThree(products: Product[]): Product[] {
+  if (products.length <= 3) return products;
+  const copy = [...products];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, 3);
+}
 
 export default function ProductGridSection({
   showShopNowButton = true,
   initialProducts,
+  homeMobileRandomThree = false,
 }: Props) {
   const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
   const [loading, setLoading] = useState(!initialProducts);
@@ -50,6 +63,32 @@ export default function ProductGridSection({
     if (initialProducts) return;
     fetchProducts();
   }, [initialProducts]);
+
+  const [viewportIsMobile, setViewportIsMobile] = useState(false);
+  const [viewportReady, setViewportReady] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => {
+      setViewportIsMobile(mq.matches);
+      setViewportReady(true);
+    };
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const gridProducts = useMemo(() => {
+    if (
+      !homeMobileRandomThree ||
+      !viewportReady ||
+      !viewportIsMobile ||
+      products.length === 0
+    ) {
+      return products;
+    }
+    return takeRandomThree(products);
+  }, [homeMobileRandomThree, viewportReady, viewportIsMobile, products]);
 
   if (loading) {
     return (
@@ -93,7 +132,7 @@ export default function ProductGridSection({
     <section className="flex min-h-screen w-full items-center justify-center overflow-x-clip bg-white px-4 py-24 sm:px-6 md:px-50">
       <div className="mx-auto w-full min-w-0 max-w-8xl">
         <div className="grid grid-cols-1 justify-items-center gap-x-5 gap-y-20 md:grid-cols-3">
-          {products.map((product) => (
+          {gridProducts.map((product) => (
             <Link
               key={product.id}
               href={`/shop/${product.id}`}

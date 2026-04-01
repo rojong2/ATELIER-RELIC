@@ -61,7 +61,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <ProductGridSection initialProducts={products} />
+      <ProductGridSection
+        initialProducts={products}
+        homeMobileRandomThree
+      />
 
       {/* 매거진 섹션 */}
       <section className="flex min-h-[250px] w-full items-center justify-center px-4">

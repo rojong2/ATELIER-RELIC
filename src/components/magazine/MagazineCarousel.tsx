@@ -358,36 +358,6 @@ export default function MagazineCarousel({
             ))}
           </div>
         </div>
-
-        {pages.length > 1 && (
-          <div className="flex flex-col items-center gap-2 pt-4 sm:pt-5">
-            <p className="text-[11px] tracking-[0.06em] text-[#9b8a72] sm:text-[12px]">
-              {page + 1} / {pages.length}
-            </p>
-            <div
-              className="flex items-center justify-center gap-2 sm:gap-3"
-              role="toolbar"
-              aria-label="슬라이드 이동">
-              {pages.map((_, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  aria-current={idx === page ? "true" : undefined}
-                  aria-label={`${idx + 1}번째 슬라이드로 이동`}
-                  onClick={() => goToPage(idx)}
-                  className="flex min-h-11 min-w-11 items-center justify-center rounded-full p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9b8a72] focus-visible:ring-offset-2 sm:min-h-10 sm:min-w-10">
-                  <span
-                    className={`h-2 w-2 rounded-full border transition-colors ${
-                      idx === page
-                        ? "border-[#9b8a72] bg-[#9b8a72]"
-                        : "border-[#d8cdbf] bg-transparent"
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="flex justify-center px-4 pt-10 sm:pt-12 md:pt-14">
