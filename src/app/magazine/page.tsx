@@ -4,17 +4,20 @@ import { getMagazinesByIdOrder } from "@/features/magazine/services/magazineServ
 export default async function MagazinePage() {
   const magazines = await getMagazinesByIdOrder();
   return (
-    <main className="w-full bg-white">
-      <section className="flex h-[300px] w-full items-center justify-center pt-50">
+    <main>
+      <section className="flex h-[300px] w-full items-center justify-center">
         <div className="mx-auto w-full text-center">
-          <h1 className="text-[60px] font-normal text-[#5B3A1A]">MAGAZINE</h1>
-          <p className="mx-auto text-[18px] leading-[1.8] text-[#7b674f]">
-            OUR STORY
+          <h2 className="pt-50 text-[60px] font-normal text-[#5B3A1A]">
+            MAGAZINE
+          </h2>
+          <p className="mx-auto text-[16px] leading-[1.8] text-[#7b674f]">
+            Our stories and collections.
           </p>
         </div>
       </section>
 
       <MagazineGridSection initialItems={magazines} />
+      <div className="h-[70px]"></div>
     </main>
   );
 }

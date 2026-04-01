@@ -90,7 +90,7 @@ export default function ProductGridSection({
   }
 
   return (
-    <section className="flex min-h-screen w-full items-center justify-center overflow-x-clip bg-white px-4 py-24 sm:px-6">
+    <section className="flex min-h-screen w-full items-center justify-center overflow-x-clip bg-white px-4 py-24 sm:px-6 md:px-50">
       <div className="mx-auto w-full min-w-0 max-w-8xl">
         <div className="grid grid-cols-1 justify-items-center gap-x-5 gap-y-20 md:grid-cols-3">
           {products.map((product) => (
